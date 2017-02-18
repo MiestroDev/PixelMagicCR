@@ -52,8 +52,8 @@ namespace PixelMagic.Rotation
                         WoW.CastSpell("Lacerate");
                         return;
                     }
-                    if (WoW.CanCast("Snake Hunter") && (WoW.PlayerSpellCharges("Mongoose Bite") <= 0) && (WoW.PlayerBuffTimeRemaining("Mongoose Fury") >= 6) && WoW.IsSpellInRange("Mongoose Bite") &&
-                        !WoW.PlayerIsCasting && !WoW.PlayerIsChanneling)
+                    if (WoW.CanCast("Snake Hunter") && (WoW.PlayerSpellCharges("Mongoose Bite") <= 0) && (WoW.PlayerBuffTimeRemaining("Mongoose Fury") >= 6) &&
+                        WoW.IsSpellInRange("Mongoose Bite") && !WoW.PlayerIsCasting && !WoW.PlayerIsChanneling)
                     {
                         WoW.CastSpell("Snake Hunter");
                         return;

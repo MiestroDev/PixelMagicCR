@@ -112,7 +112,7 @@ namespace PixelMagic.Rotation
                     }
                 }
             }
-            if (combatRoutine.Type == RotationType.AOE)  //cast chain light and earthguake, using CDs without fire elemental   
+            if (combatRoutine.Type == RotationType.AOE) //cast chain light and earthguake, using CDs without fire elemental   
             {
                 if (WoW.HasTarget && WoW.TargetIsEnemy) //First things go first
                 {

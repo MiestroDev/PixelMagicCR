@@ -36,7 +36,10 @@ namespace PixelMagic.Rotation
         {
             Log.Write("Welcome to Beastmastery Hunter", Color.Green);
             Log.Write("IN ORDER FOR THIS ROTATION TO WORK YOU WILL NEED TO DOWNLOAD AND INSTALL THE ADDON.", Color.Red);
-            Log.Write("https://github.com/winifix/PixelMagicCR/tree/master/Hunter", Color.Blue);
+            Log.Write("Poke me on DISCORD for the addon", Color.Blue);
+            Log.Write("Use Scroll Lock key to toggle ST/AOE/CLEAVE auto detection", Color.Blue);
+            Log.Write("If Scroll Lock LED is ON ST/AOE/CLEAVE auto detection is ENABLED", Color.Blue);
+            Log.Write("If Scroll Lock LED is OFF ST/AOE/CLEAVE auto detection is DISABLED use the manual mode to select ST/AOE/CLEAVE (Default: ALT+S, ALT+A)", Color.Blue);
         }
 
         public override void Stop()
@@ -59,7 +62,8 @@ namespace PixelMagic.Rotation
                 && (!WoW.ItemOnCooldown("Healthstone") || !WoW.ItemOnCooldown("Potion"))
                 && !WoW.PlayerHasBuff("Feign Death")
                 && WoW.HealthPercent <= 30
-                && !WoW.PlayerHasBuff("Mount"))
+                && !WoW.PlayerHasBuff("Mount")
+                && WoW.HealthPercent != 0)
             {
                 WoW.CastSpell("Healthstone");
                 WoW.CastSpell("Potion");
@@ -70,16 +74,18 @@ namespace PixelMagic.Rotation
             if (WoW.CanCast("Exhilaration")
                 && WoW.HealthPercent <= 20
                 && !WoW.PlayerHasBuff("Mount")
-                && !WoW.PlayerHasBuff("Feign Death"))
+                && !WoW.PlayerHasBuff("Feign Death")
+                && WoW.HealthPercent != 0)
             {
                 WoW.CastSpell("Exhilaration");
                 return;
             }
 
             //Call pet
-            if (!WoW.HasPet 
+            if (!WoW.HasPet
                 && !WoW.PlayerHasBuff("Mount")
-                && !WoW.PlayerHasBuff("Feign Death"))
+                && !WoW.PlayerHasBuff("Feign Death")
+                && WoW.HealthPercent != 0)
             {                
                 WoW.CastSpell("Call Pet");
                 return;
@@ -88,7 +94,8 @@ namespace PixelMagic.Rotation
             //Revive Pet
             if ((!WoW.HasPet || WoW.PetHealthPercent < 1)
                 && !WoW.PlayerHasBuff("Mount")
-                && !WoW.PlayerHasBuff("Feign Death"))
+                && !WoW.PlayerHasBuff("Feign Death")
+                && WoW.HealthPercent != 0)
             {
                 WoW.CastSpell("Heart of the Phoenix");
                 WoW.CastSpell("Revive Pet");
@@ -99,13 +106,14 @@ namespace PixelMagic.Rotation
             if (WoW.CanCast("Voley")
                 && !WoW.PlayerHasBuff("Feign Death")
                 && !WoW.PlayerHasBuff("Voley")
+                && WoW.HealthPercent != 0
                 && CharInfo.T6 == 3)
             {
                 WoW.CastSpell("Voley");
                 return;
             }
 
-            if (WoW.HasTarget && WoW.TargetIsEnemy && WoW.IsInCombat && !WoW.PlayerHasBuff("Mount") && !WoW.PlayerIsChanneling && !WoW.PlayerIsCasting && !WoW.PlayerHasBuff("Feign Death") && WoW.HealthPercent != 0)
+            if (WoW.HasTarget && WoW.TargetIsEnemy && WoW.IsInCombat && !WoW.PlayerHasBuff("Mount") && !WoW.PlayerIsChanneling && !WoW.PlayerHasBuff("Feign Death") && WoW.HealthPercent != 0)
             {
                 //Stampede
                 if (DetectKeyPress.GetKeyState(DetectKeyPress.Shift) < 0
@@ -116,81 +124,90 @@ namespace PixelMagic.Rotation
                     return;
                 }
 
-                //Intimidation
+                //Intimidation //Binding Shot
                 if (DetectKeyPress.GetKeyState(DetectKeyPress.Ctrl) < 0                    
                     && ((WoW.CanCast("Intimidation") && CharInfo.T5 == 3) || (WoW.CanCast("Binding Shot") && CharInfo.T5 == 1)))
                 {
                     WoW.CastSpell("Binding Shot");
                     WoW.CastSpell("Intimidation");
                     return;
-                }
-
-                //Bestial Wrath
-                if (WoW.CanCast("Bestial Wrath")
-                    && !WoW.PlayerHasBuff("Aspect of the Turtle")
-                    && WoW.IsSpellInRange("Cobra Shot")
-                    && (WoW.Focus >= 107))
-                {
-                    WoW.CastSpell("Bestial Wrath");
-                    return;
-                }
+                }                
 
                 //Cooldowns
                 if (UseCooldowns)
-                {   
+                { 
                     //Aspect of the Wild
                     if (WoW.CanCast("Aspect of the Wild")
                         && !WoW.PlayerHasBuff("Aspect of the Turtle")
                         && WoW.PlayerHasBuff("Bestial Wrath")
-                        && WoW.PlayerBuffTimeRemaining("Bestial Wrath") >= 10)
+                        && WoW.PlayerBuffTimeRemaining("Bestial Wrath") >= 12)
                     {
                         WoW.CastSpell("Aspect of the Wild");
                         return;
                     }                    
-                }                
+                }
+
+                //Legendary Trinket
+                if (WoW.CanCast("Kil'jaeden's Burning Wish")
+                    && (((WoW.SpellCooldownTimeRemaining("Bestial Wrath") > 15 && WoW.SpellCooldownTimeRemaining("Dire Beast") > 5)) || WoW.PlayerHasBuff("Bestial Wrath"))
+                    && !WoW.ItemOnCooldown("Kil'jaeden's Burning Wish")
+                    && WoW.IsSpellInRange("Cobra Shot"))
+                {
+                    WoW.CastSpell("Kil'jaeden's Burning Wish");
+                }
 
                 //SINGLE TARGET
-                                       
-                        //Legendary Trinket
-                        if (WoW.CanCast("Kil'jaeden's Burning Wish")
-                            && (((WoW.SpellCooldownTimeRemaining("Bestial Wrath") > 15 && WoW.SpellCooldownTimeRemaining("Dire Beast") > 5)) || WoW.PlayerHasBuff("Bestial Wrath"))
-                            && !WoW.ItemOnCooldown("Kil'jaeden's Burning Wish")
-                            && WoW.IsSpellInRange("Cobra Shot"))
-                        {
-                            WoW.CastSpell("Kil'jaeden's Burning Wish");
-                        }
 
-                        //Titan's Thunder
-                        if (combatRoutine.Type == RotationType.SingleTarget
-                            && WoW.CanCast("Titan's Thunder")
-                            && (WoW.PlayerBuffTimeRemaining("Dire Beast") >= 7)
-                            && (WoW.PlayerHasBuff("Dire Beast") || CharInfo.T2 == 2))
+                        //Bestial Wrath
+                        if ((combatRoutine.Type == RotationType.SingleTarget || combatRoutine.Type == RotationType.SingleTargetCleave)
+                            && WoW.CanCast("Bestial Wrath")
+                            && !WoW.PlayerHasBuff("Aspect of the Turtle")
+                            && WoW.IsSpellInRange("Cobra Shot")
+                            && (WoW.Focus >= 110))
                         {
-                            WoW.CastSpell("Titan's Thunder");
+                            WoW.CastSpell("Bestial Wrath");
+                            WoW.CastSpell("Kill Command");
+                            if (WoW.CanCast("A Murder of Crows")
+                                && WoW.IsSpellInRange("Cobra Shot")
+                                && CharInfo.T6 == 1
+                                && WoW.Focus >= 30)
+                            {
+                                WoW.CastSpell("A Murder of Crows");                                
+                            } 
+                            
                             return;
                         }
 
                         //A Murder of Crows
                         if (combatRoutine.Type == RotationType.SingleTarget
-                            && WoW.SpellCooldownTimeRemaining("Bestial Wrath") >= 10
+                            && WoW.SpellCooldownTimeRemaining("Bestial Wrath") > 23
                             && WoW.CanCast("A Murder of Crows")
                             && WoW.IsSpellInRange("Cobra Shot")
                             && CharInfo.T6 == 1
-                            && WoW.Focus >= 30)                            
+                            && WoW.Focus >= 25)                            
                         {
                             WoW.CastSpell("A Murder of Crows");
                             return;
-                        } 
+                        }
+
+                        //Kill Command
+                        if (combatRoutine.Type == RotationType.SingleTarget
+                            && WoW.CanCast("Kill Command")
+                            && WoW.Focus >= 100)
+                        {
+                            WoW.CastSpell("Kill Command");
+                            return;
+                        }
 
                         // Dire beast
                         if (combatRoutine.Type == RotationType.SingleTarget
                             && WoW.CanCast("Dire Beast")
                             && WoW.SpellCooldownTimeRemaining("Bestial Wrath") > 3
-                            && WoW.IsSpellInRange("Cobra Shot")
- 
+                            && WoW.IsSpellInRange("Cobra Shot") 
                             && CharInfo.T2 != 2)
                         {
                             WoW.CastSpell("Dire Beast");
+                            WoW.CastSpell("Titan's Thunder");
                             return;
                         }
 
@@ -201,19 +218,20 @@ namespace PixelMagic.Rotation
                             && WoW.IsSpellInRange("Cobra Shot")
                             && CharInfo.T2 == 2)
                         {
-                            WoW.CastSpell("Dire Frenzy");
+                            WoW.CastSpell("Titan's Thunder");
+                            WoW.CastSpell("Dire Frenzy");                            
                             return;
-                        }                        
+                        }
 
                         //Kill Command
                         if (combatRoutine.Type == RotationType.SingleTarget
-                            && (WoW.CanCast("Kill Command") || WoW.SpellCooldownTimeRemaining("Kill Command") <= 0.7)
-                            && (WoW.SpellCooldownTimeRemaining("Bestial Wrath") > WoW.SpellCooldownTimeRemaining("Kill Command") || (WoW.SpellCooldownTimeRemaining("Bestial Wrath") >= 23 && WoW.SpellCooldownTimeRemaining("Dire Beast") > WoW.SpellCooldownTimeRemaining("Kill Command")))
-                            && WoW.Focus >= 30)
+                            && WoW.CanCast("Kill Command")
+                            && (WoW.SpellCooldownTimeRemaining("Bestial Wrath") - WoW.SpellCooldownTimeRemaining("Kill Command") > 2 || (WoW.SpellCooldownTimeRemaining("Bestial Wrath") >= 23 && WoW.SpellCooldownTimeRemaining("Dire Beast") - WoW.SpellCooldownTimeRemaining("Kill Command") > 2))
+                            && WoW.Focus >= 25)
                         {
                             WoW.CastSpell("Kill Command");
                             return;
-                        }                        
+                        }
 
                         //Chimaera Shot
                         if (combatRoutine.Type == RotationType.SingleTarget
@@ -228,7 +246,7 @@ namespace PixelMagic.Rotation
 
                         //Cobra Shot
                         if (combatRoutine.Type == RotationType.SingleTarget
-                            && ((WoW.Focus >= 100) || (WoW.PlayerHasBuff("Bestial Wrath") && (WoW.Focus >= 40)))
+                            && ((WoW.Focus >= 110) || (WoW.PlayerHasBuff("Bestial Wrath") && (WoW.Focus >= 40)))
                             && WoW.IsSpellInRange("Cobra Shot")
                             && WoW.CanCast("Cobra Shot")
                             && !WoW.CanCast("Bestial Wrath"))
@@ -249,16 +267,6 @@ namespace PixelMagic.Rotation
                         return;
                     }
 
-                    //Titan's Thunder
-                    if (combatRoutine.Type == RotationType.AOE
-                        && WoW.CanCast("Titan's Thunder")
-                        && (WoW.PlayerBuffTimeRemaining("Dire Beast") >= 7)
-                        && (WoW.PlayerHasBuff("Dire Beast") || CharInfo.T2 == 2))
-                    {
-                        WoW.CastSpell("Titan's Thunder");
-                        return;
-                    }
-
                     // Dire beast
                     if (combatRoutine.Type == RotationType.AOE
                         && WoW.CanCast("Dire Beast")
@@ -267,6 +275,7 @@ namespace PixelMagic.Rotation
                         && CharInfo.T2 != 2)
                     {
                         WoW.CastSpell("Dire Beast");
+                        WoW.CastSpell("Titan's Thunder");
                         return;
                     }
 
@@ -278,6 +287,7 @@ namespace PixelMagic.Rotation
                         && CharInfo.T2 == 2)
                     {
                         WoW.CastSpell("Dire Frenzy");
+                        WoW.CastSpell("Titan's Thunder");
                         return;
                     }
 
@@ -307,7 +317,7 @@ namespace PixelMagic.Rotation
                         && WoW.CanCast("Chimaera Shot")
                         && WoW.IsSpellInRange("Cobra Shot")
                         && CharInfo.T2 == 3
-                        && WoW.Focus < 90)
+                        && WoW.Focus < 80)
                     {
                         WoW.CastSpell("Chimaera Shot");
                         return;
@@ -315,23 +325,13 @@ namespace PixelMagic.Rotation
 
                 //CLEAVE
 
-                    //Titan's Thunder
-                    if (combatRoutine.Type == RotationType.SingleTargetCleave
-                        && WoW.CanCast("Titan's Thunder")
-                        && (WoW.PlayerBuffTimeRemaining("Dire Beast") >= 7)
-                        && (WoW.PlayerHasBuff("Dire Beast") || CharInfo.T2 == 2))
-                    {
-                        WoW.CastSpell("Titan's Thunder");
-                        return;
-                    }
-
                     //A Murder of Crows
-                    if (combatRoutine.Type == RotationType.SingleTargetCleave
-                        && WoW.SpellCooldownTimeRemaining("Bestial Wrath") >= 10
+                    if (combatRoutine.Type == RotationType.SingleTarget
+                        && WoW.SpellCooldownTimeRemaining("Bestial Wrath") > 23
                         && WoW.CanCast("A Murder of Crows")
                         && WoW.IsSpellInRange("Cobra Shot")
                         && CharInfo.T6 == 1
-                        && WoW.Focus >= 30)
+                        && WoW.Focus >= 25)
                     {
                         WoW.CastSpell("A Murder of Crows");
                         return;
@@ -357,6 +357,7 @@ namespace PixelMagic.Rotation
                         && CharInfo.T2 != 2)
                     {
                         WoW.CastSpell("Dire Beast");
+                        WoW.CastSpell("Titan's Thunder");
                         return;
                     }
 
@@ -368,6 +369,7 @@ namespace PixelMagic.Rotation
                         && CharInfo.T2 == 2)
                     {
                         WoW.CastSpell("Dire Frenzy");
+                        WoW.CastSpell("Titan's Thunder");
                         return;
                     }
 
@@ -383,21 +385,21 @@ namespace PixelMagic.Rotation
                     }
 
                     //Kill Command
-                    if (combatRoutine.Type == RotationType.SingleTargetCleave
-                        && (WoW.CanCast("Kill Command") || WoW.SpellCooldownTimeRemaining("Kill Command") <= 0.7)
-                        && (WoW.SpellCooldownTimeRemaining("Bestial Wrath") > WoW.SpellCooldownTimeRemaining("Kill Command") || (WoW.SpellCooldownTimeRemaining("Bestial Wrath") >= 23 && WoW.SpellCooldownTimeRemaining("Dire Beast") > WoW.SpellCooldownTimeRemaining("Kill Command")))
-                        && WoW.Focus >= 30)
+                    if (combatRoutine.Type == RotationType.SingleTarget
+                        && WoW.CanCast("Kill Command")
+                        && (WoW.SpellCooldownTimeRemaining("Bestial Wrath") - WoW.SpellCooldownTimeRemaining("Kill Command") > 2 || (WoW.SpellCooldownTimeRemaining("Bestial Wrath") >= 23 && WoW.SpellCooldownTimeRemaining("Dire Beast") - WoW.SpellCooldownTimeRemaining("Kill Command") > 2))
+                        && WoW.Focus >= 25)
                     {
                         WoW.CastSpell("Kill Command");
                         return;
-                    }                    
+                    }            
 
                     //Chimaera Shot
                     if (combatRoutine.Type == RotationType.SingleTargetCleave
                         && WoW.CanCast("Chimaera Shot")
                         && WoW.IsSpellInRange("Cobra Shot")
                         && CharInfo.T2 == 3
-                        && WoW.Focus < 90)
+                        && WoW.Focus < 80)
                     {
                         WoW.CastSpell("Chimaera Shot");
                         return;
@@ -405,7 +407,7 @@ namespace PixelMagic.Rotation
 
                     //Cobra Shot
                     if (combatRoutine.Type == RotationType.SingleTargetCleave
-                        && ((WoW.Focus >= 100) || (WoW.PlayerHasBuff("Bestial Wrath") && (WoW.Focus >= 40)))
+                        && ((WoW.Focus >= 110) || (WoW.PlayerHasBuff("Bestial Wrath") && (WoW.Focus >= 40)))
                         && WoW.IsSpellInRange("Cobra Shot")
                         && WoW.CanCast("Cobra Shot")
                         && !WoW.CanCast("Bestial Wrath"))
@@ -426,7 +428,7 @@ namespace PixelMagic.Rotation
             }
         }
 
-
+        #region Talents functions
         public struct char_data
         {
             public int T1;
@@ -526,13 +528,16 @@ namespace PixelMagic.Rotation
         private void SelectRotation()
         {  
             if (Nameplates)
-            {
-                if (npcCount >= 4 && !WoW.TargetIsPlayer)
-                    combatRoutine.ChangeType(RotationType.AOE);
-                if ((npcCount == 2 || npcCount == 3) && !WoW.TargetIsPlayer)
-                    combatRoutine.ChangeType(RotationType.SingleTargetCleave);
-                if (npcCount <= 1)
-                    combatRoutine.ChangeType(RotationType.SingleTarget);
+            { 
+                if(Control.IsKeyLocked(Keys.Scroll))
+                {
+                    if (npcCount >= 4 && !WoW.TargetIsPlayer)
+                        combatRoutine.ChangeType(RotationType.AOE);
+                    if ((npcCount == 2 || npcCount == 3) && !WoW.TargetIsPlayer)
+                        combatRoutine.ChangeType(RotationType.SingleTargetCleave);
+                    if ((npcCount <= 1))
+                        combatRoutine.ChangeType(RotationType.SingleTarget);            
+                }
             }
         }
 
@@ -611,18 +616,16 @@ namespace PixelMagic.Rotation
         {
             try
             {
-                string addonlua = File.ReadAllText("" + WoW.AddonPath + "\\" + AddonName + "\\" + AddonEmbedName);
+
                 Log.Write("Addon emedding Editing in progress");
-                addonlua = addonlua.Replace("</Ui>",
-                                            "<Script file=\"lib\\LibSpellRange-1.0\\LibSpellRange-1.0.lua\"/>"
-                                            + Environment.NewLine + "<Script file = \"lib\\LibSpellRange-1.0\\LibSpellRange-1.0.xml\" />"
-                                            + Environment.NewLine + "</Ui>");
-                File.WriteAllText("" + WoW.AddonPath + "\\" + AddonName + "\\" + AddonEmbedName, addonlua);
-                Log.Write("Addon Embedding complete");
-                Thread.Sleep(2000);
-                while (WoW.HealthPercent == 0 || WoW.HastePercent == 0)
+                if (!File.Exists(Path.Combine("" + WoW.AddonPath + "\\" + AddonName + "\\", AddonEmbedName)))
                 {
-                    Thread.Sleep(2000);
+                    string addonlua = " < Ui xmlns = \"http://www.blizzard.com/wow/ui/\" xmlns: xsi = \"http://www.w3.org/2001/XMLSchema-instance \" xsi: schemaLocation = \"http://www.blizzard.com/wow/ui/ ..\\FrameXML\\UI.xsd\" >" + Environment.NewLine
+                + "< Script file = \"lib\\LibSpellRange-1.0\\LibSpellRange-1.0.lua\" />" + Environment.NewLine
+                + "</ Ui >" + Environment.NewLine;
+                    File.WriteAllText("" + WoW.AddonPath + "\\" + AddonName + "\\" + AddonEmbedName, addonlua);
+                    Log.Write("Addon Embedding complete");
+
                 }
                 AddonEmbeded = true;
             }
@@ -654,7 +657,7 @@ namespace PixelMagic.Rotation
             if (RangeLib == false)
             {
                 RangeLibCopy();
-                WoW.SendMacro("/reload");
+                WoW.Reload();
             }
             Thread.Sleep(350);
         }
@@ -662,23 +665,58 @@ namespace PixelMagic.Rotation
         {
             try
             {
-                string addonlua = File.ReadAllText("" + WoW.AddonPath + "\\" + AddonName + "\\" + AddonName + ".lua");
-                Log.Write("Addon Editing in progress");
-                addonlua = addonlua.Replace("local lastCombat = nil" + Environment.NewLine + "local alphaColor = 1", "local lastCombat = nil" + Environment.NewLine + "local alphaColor = 1" + Environment.NewLine + CustomLua);
-                addonlua = addonlua.Replace("InitializeOne()" + Environment.NewLine + "            InitializeTwo()", "InitializeOne()" + Environment.NewLine + "            InitializeTwo()" + Environment.NewLine + "            InitializeThree()");
-                File.WriteAllText("" + WoW.AddonPath + "\\" + AddonName + "\\" + AddonName + ".lua", addonlua);
-                //WoW.SendMacro("/reload");
-                while (WoW.HealthPercent == 0 || WoW.HastePercent == 0)
+                if (File.Exists(AppDomain.CurrentDomain.BaseDirectory + LuaAddon))
                 {
-                    Thread.Sleep(25);
+                    string addonlua = File.ReadAllText("" + WoW.AddonPath + "\\" + AddonName + "\\" + AddonName + ".lua");
+                    Log.Write("Addon Editing in progress");
+                    addonlua = addonlua.Replace("if name == \"Wild Imps\"", "if (name == \"Wild Imps\" or name == \"Spirit Wolf\" or name == \"Totem Mastery\")");
+                    addonlua = addonlua.Replace("and(startTime + duration - GetTime() > 1.6) ", "and(startTime + duration - GetTime() > (1.5 / (1 + (GetHaste() / 100) ))) ");
+                    addonlua = addonlua.Replace("end" + Environment.NewLine + Environment.NewLine + "local function InitializeTwo()", Environment.NewLine);
+                    addonlua = addonlua.Replace("	--print (\"Initialising Spell Charges Frames\")", "end" + Environment.NewLine + "local function InitializeTwo()" + Environment.NewLine + "	--print (\"Initialising Spell Charges Frames\")" + Environment.NewLine);
+                    addonlua = addonlua.Replace("IsSpellInRange(name, \"target\")", "LibStub(\"SpellRange-1.0\").IsSpellInRange(name, \"target\")");
+                    addonlua = addonlua.Replace("local function InitializeOne()", Environment.NewLine + CustomLua + Environment.NewLine + "local function InitializeOne()");
+                    addonlua = addonlua.Replace("InitializeOne()" + Environment.NewLine + "            InitializeTwo()", "InitializeOne()" + Environment.NewLine + "            InitializeTwo()" + Environment.NewLine + "            InitializeThree()");
+                    addonlua = addonlua.Replace("healthFrame:SetScript(\"OnUpdate\", updateHealth)", "");
+                    addonlua = addonlua.Replace("powerFrame: SetScript(\"OnUpdate\", updatePower)", "");
+                    addonlua = addonlua.Replace("	targetHealthFrame: SetScript(\"OnUpdate\", updateTargetHealth) ", "");
+                    addonlua = addonlua.Replace("unitCombatFrame: SetScript(\"OnUpdate\", updateCombat)", "");
+                    addonlua = addonlua.Replace("unitPowerFrame:SetScript(\"OnUpdate\", updateUnitPower)", "");
+                    addonlua = addonlua.Replace("isTargetFriendlyFrame: SetScript(\"OnUpdate\", updateIsFriendly)", "");
+                    addonlua = addonlua.Replace("playerIsCastingFrame: SetScript(\"OnUpdate\", updatePlayerIsCasting)", "");
+                    addonlua = addonlua.Replace("hasTargetFrame: SetScript(\"OnUpdate\", hasTarget)", "");
+                    addonlua = addonlua.Replace("targetIsCastingFrame: SetScript(\"OnUpdate\", updateTargetIsCasting)", "");
+                    addonlua = addonlua.Replace("hasteFrame: SetScript(\"OnUpdate\", updateHaste)", "");
+                    addonlua = addonlua.Replace("unitIsVisibleFrame: SetScript(\"OnUpdate\", updateUnitIsVisible)", "");
+                    addonlua = addonlua.Replace("petHealthFrame: SetScript(\"OnUpdate\", updatePetHealth)", "");
+                    addonlua = addonlua.Replace("wildPetsFrame: SetScript(\"OnUpdate\", updateWildPetsFrame)", "");
+                    addonlua = addonlua.Replace("cooldownframes[spellId]:SetScript(\"OnUpdate\", updateSpellCooldowns)", "");
+                    addonlua = addonlua.Replace("spellInRangeFrames[spellId]:SetScript(\"OnUpdate\", updateSpellInRangeFrames)", "");
+                    addonlua = addonlua.Replace("targetDebuffFrames[debuffId]:SetScript(\"OnUpdate\", updateTargetDebuffs)", "");
+                    addonlua = addonlua.Replace("updateSpellChargesFrame[spellId]:SetScript(\"OnUpdate\", updateSpellCharges)", "");
+                    addonlua = addonlua.Replace("TargetBuffs[buffId]:SetScript(\"OnUpdate\", updateTargetBuffs)", "");
+                    addonlua = addonlua.Replace("PlayerMovingFrame: SetScript(\"OnUpdate\", PlayerNotMove)", "");
+                    addonlua = addonlua.Replace("AutoAtackingFrame: SetScript(\"OnUpdate\", AutoAtacking)", "");
+                    addonlua = addonlua.Replace("targetIsPlayerFrame: SetScript(\"OnUpdate\", updateIsPlayer)", "");
+                    addonlua = addonlua.Replace("flagFrame: SetScript(\"OnUpdate\", updateFlag)", "");
+                    addonlua = addonlua.Replace("targetLastSpellFrame[i]:SetScript(\"OnUpdate\", updateTargetCurrentSpell)", "");
+                    addonlua = addonlua.Replace("targetArena1Frame[i]:SetScript(\"OnUpdate\", updateArena1Spell)", "");
+                    addonlua = addonlua.Replace("targetArena2Frame[i]:SetScript(\"OnUpdate\", updateArena2Spell)", "");
+                    addonlua = addonlua.Replace("targetArena3Frame[i]:SetScript(\"OnUpdate\", updateArena3Spell)", "");
+                    addonlua = addonlua.Replace("buffFrames[buffId]:SetScript(\"OnUpdate\", updateMyBuffs)", "");
+                    addonlua = addonlua.Replace("itemframes[itemId]:SetScript(\"OnUpdate\", updateItemCooldowns)", "");
+                    addonlua = addonlua.Replace("spellOverlayedFrames[spellId]:SetScript(\"OnUpdate\", updateIsSpellOverlayedFrames)", "");
+                    addonlua = addonlua.Replace("playerDebuffFrames[debuffId]:SetScript(\"OnUpdate\", updatePlayerDebuffs)", "");
+                    File.WriteAllText("" + WoW.AddonPath + "\\" + AddonName + "\\" + AddonName + ".lua", addonlua);
+                    AddonEdited = true;
                 }
-                AddonEdited = true;
+                else
+                    Log.Write("Adddon failed to load, Pleaes check " + LuaAddon + " Is in PM.EXE directory,Rotation will not function with out it");
             }
             catch (Exception ex)
             {
                 MessageBox.Show("" + ex, "PixelMagic", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-
+            Log.Write("Editing Addon Complete");
         }
 
         public override Form SettingsForm { get; set; }
@@ -718,11 +756,12 @@ namespace PixelMagic.Rotation
         }
     }
 }
+        #endregion
 
 /*
 [AddonDetails.db]
 AddonAuthor=Sorcerer
-AddonName=
+AddonName=Quartz
 WoWVersion=Legion - 70100
 [SpellBook.db]
 Spell,136,Mend Pet,D8

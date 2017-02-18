@@ -75,7 +75,8 @@ namespace PixelMagic.Rotation
 
         public override void Initialize()
         {
-            MessageBox.Show("Welcome to Protection Paladin by Scotishdwarf 1.05.\n\n- Manual use of Divine Shield and Blessings\n- If using Blessed Hammer, Hand of the Protector or Seraphim talents, please enable them from Rotation settings.\n\nSuggested build 2132121\n\nPlease give feedback to Scotishdwarf at PixelMagic Discord.\n\nPress OK to continue loading.");
+            MessageBox.Show(
+                "Welcome to Protection Paladin by Scotishdwarf 1.05.\n\n- Manual use of Divine Shield and Blessings\n- If using Blessed Hammer, Hand of the Protector or Seraphim talents, please enable them from Rotation settings.\n\nSuggested build 2132121\n\nPlease give feedback to Scotishdwarf at PixelMagic Discord.\n\nPress OK to continue loading.");
             Log.Write("Welcome to Protection by Scotishdwarf", Color.Purple);
             Log.Write("Manual use : Divine Shield, Blessings : Protection, Sacrifice and Freedom.", Color.Purple);
             Log.Write("Automatic cooldown usage at 10-30% of health.", Color.Purple);

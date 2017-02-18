@@ -16,7 +16,6 @@ namespace PixelMagic.Rotation
 
         public override Form SettingsForm { get; set; }
 
-
         public override void Initialize()
         {
             Log.Write("Welcome to Rogue-Subtlety", Color.Green);
@@ -27,7 +26,6 @@ namespace PixelMagic.Rotation
         public override void Stop()
         {
         }
-
 
         public override void Pulse()
         {
@@ -57,8 +55,8 @@ namespace PixelMagic.Rotation
                                 return;
                             } */
 
-                        if (WoW.CanCast("Nightblade") && WoW.CurrentComboPoints >= 5 && WoW.Energy >= 25 && (!WoW.TargetHasDebuff("Nightblade") || WoW.TargetDebuffTimeRemaining("Nightblade") <= 4) &&
-                            WoW.IsSpellInRange("Nightblade"))
+                        if (WoW.CanCast("Nightblade") && WoW.CurrentComboPoints >= 5 && WoW.Energy >= 25 &&
+                            (!WoW.TargetHasDebuff("Nightblade") || WoW.TargetDebuffTimeRemaining("Nightblade") <= 4) && WoW.IsSpellInRange("Nightblade"))
                         {
                             WoW.CastSpell("Nightblade");
                             return;
@@ -146,8 +144,8 @@ namespace PixelMagic.Rotation
                                 return;
                             } */
 
-                        if (WoW.CanCast("Nightblade") && WoW.CurrentComboPoints >= 5 && WoW.Energy >= 25 && (!WoW.TargetHasDebuff("Nightblade") || WoW.TargetDebuffTimeRemaining("Nightblade") <= 4) &&
-                            WoW.IsSpellInRange("Nightblade"))
+                        if (WoW.CanCast("Nightblade") && WoW.CurrentComboPoints >= 5 && WoW.Energy >= 25 &&
+                            (!WoW.TargetHasDebuff("Nightblade") || WoW.TargetDebuffTimeRemaining("Nightblade") <= 4) && WoW.IsSpellInRange("Nightblade"))
                         {
                             WoW.CastSpell("Nightblade");
                             return;

@@ -131,10 +131,8 @@ namespace PixelMagic.Rotation
 				Log.Write ("Dreadretards: " + WoW.GetDreadstalkersCount); */
 
 
-                if (WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && !WoW.PlayerIsCasting &&
-                    !WoW.PlayerIsChanneling && WoW.CanCast("Doomguard") && WoW.IsSpellInRange("Doomguard")
-                    && (WoW.PlayerHasBuff("Bloodlust") || WoW.PlayerHasBuff("TimeWarp")) && WoW.CurrentSoulShards >= 1 &&
-                    !WoW.IsSpellOnCooldown("Doomguard"))
+                if (WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && !WoW.PlayerIsCasting && !WoW.PlayerIsChanneling && WoW.CanCast("Doomguard") && WoW.IsSpellInRange("Doomguard") &&
+                    (WoW.PlayerHasBuff("Bloodlust") || WoW.PlayerHasBuff("TimeWarp")) && WoW.CurrentSoulShards >= 1 && !WoW.IsSpellOnCooldown("Doomguard"))
                 {
                     WoW.CastSpell("Doomguard");
                     return;
@@ -142,16 +140,14 @@ namespace PixelMagic.Rotation
 
                 if (WoW.IsMoving) /* What to do if we are MOVING */
                 {
-                    if (WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && WoW.PlayerSpellCharges("Shadowflame") == 1
-                        && WoW.TargetHasDebuff("Shadowflame") && WoW.TargetDebuffTimeRemaining("Shadowflame") < 3 &&
-                        WoW.CanCast("Shadowflame") && WoW.IsSpellInRange("Shadowflame"))
+                    if (WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && WoW.PlayerSpellCharges("Shadowflame") == 1 && WoW.TargetHasDebuff("Shadowflame") &&
+                        WoW.TargetDebuffTimeRemaining("Shadowflame") < 3 && WoW.CanCast("Shadowflame") && WoW.IsSpellInRange("Shadowflame"))
                     {
                         WoW.CastSpell("Shadowflame");
                         return;
                     }
 
-                    if (WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && WoW.HasPet && WoW.CanCast("Wrathstorm") &&
-                        CombatWatch.ElapsedMilliseconds > 2000)
+                    if (WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && WoW.HasPet && WoW.CanCast("Wrathstorm") && CombatWatch.ElapsedMilliseconds > 2000)
                     {
                         WoW.CastSpell("Wrathstorm");
                     }
@@ -168,16 +164,14 @@ namespace PixelMagic.Rotation
                         return;
                     }
 
-                    if (WoW.IsInCombat && WoW.HasTarget && WoW.CanCast("Shadowflame") && WoW.TargetIsEnemy &&
-                        !WoW.PlayerIsCasting && !WoW.PlayerIsChanneling && WoW.PlayerSpellCharges("Shadowflame") == 2
-                        && WoW.IsSpellInRange("Shadowflame"))
+                    if (WoW.IsInCombat && WoW.HasTarget && WoW.CanCast("Shadowflame") && WoW.TargetIsEnemy && !WoW.PlayerIsCasting && !WoW.PlayerIsChanneling &&
+                        WoW.PlayerSpellCharges("Shadowflame") == 2 && WoW.IsSpellInRange("Shadowflame"))
                     {
                         WoW.CastSpell("Shadowflame");
                         return;
                     }
 
-                    if (WoW.IsInCombat && WoW.CanCast("Demonwrath") && WoW.HasPet && WoW.HasTarget && WoW.TargetIsEnemy &&
-                        !WoW.PlayerIsCasting && !WoW.PlayerIsChanneling)
+                    if (WoW.IsInCombat && WoW.CanCast("Demonwrath") && WoW.HasPet && WoW.HasTarget && WoW.TargetIsEnemy && !WoW.PlayerIsCasting && !WoW.PlayerIsChanneling)
                     {
                         WoW.CastSpell("Demonwrath");
                         return;
@@ -188,64 +182,53 @@ namespace PixelMagic.Rotation
                 {
                     /* double dur = WoW.TargetDebuffTimeRemaining("Shadowflame");
 					Log.Write(System.Convert.ToString(dur), Color.Red); */
-                    if (WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && WoW.PlayerSpellCharges("Shadowflame") == 1
-                        && WoW.TargetHasDebuff("Shadowflame") && WoW.TargetDebuffTimeRemaining("Shadowflame") < 3 &&
-                        WoW.IsSpellInRange("Shadowflame") && WoW.CanCast("Shadowflame"))
+                    if (WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && WoW.PlayerSpellCharges("Shadowflame") == 1 && WoW.TargetHasDebuff("Shadowflame") &&
+                        WoW.TargetDebuffTimeRemaining("Shadowflame") < 3 && WoW.IsSpellInRange("Shadowflame") && WoW.CanCast("Shadowflame"))
                     {
                         WoW.CastSpell("Shadowflame");
                         return;
                     }
 
-                    if (WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && WoW.HasPet && WoW.CanCast("Wrathstorm") &&
-                        CombatWatch.ElapsedMilliseconds > 2000)
+                    if (WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && WoW.HasPet && WoW.CanCast("Wrathstorm") && CombatWatch.ElapsedMilliseconds > 2000)
                     {
                         WoW.CastSpell("Wrathstorm");
                     }
 
-                    if (WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && !WoW.PlayerIsCasting &&
-                        !WoW.IsSpellOnCooldown("Dreadstalkers") && WoW.CurrentSoulShards >= 2
-                        && WoW.IsSpellInRange("Dreadstalkers") && WoW.CanCast("Dreadstalkers"))
+                    if (WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && !WoW.PlayerIsCasting && !WoW.IsSpellOnCooldown("Dreadstalkers") && WoW.CurrentSoulShards >= 2 &&
+                        WoW.IsSpellInRange("Dreadstalkers") && WoW.CanCast("Dreadstalkers"))
                     {
                         WoW.CastSpell("Dreadstalkers");
                         return;
                     }
 
-                    if (WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && !WoW.PlayerIsCasting &&
-                        WoW.CurrentSoulShards >= 4
-                        && WoW.IsSpellInRange("HoG") && WoW.CanCast("HoG"))
+                    if (WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && !WoW.PlayerIsCasting && WoW.CurrentSoulShards >= 4 && WoW.IsSpellInRange("HoG") && WoW.CanCast("HoG"))
                     {
                         WoW.CastSpell("HoG");
                         return;
                     }
 
-                    if (WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && !WoW.PlayerIsCasting &&
-                        WoW.CurrentSoulShards >= 3
-                        && WoW.IsSpellInRange("HoG") && WoW.WasLastCasted("Dreadstalkers") && WoW.CanCast("HoG"))
+                    if (WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && !WoW.PlayerIsCasting && WoW.CurrentSoulShards >= 3 && WoW.IsSpellInRange("HoG") &&
+                        WoW.WasLastCasted("Dreadstalkers") && WoW.CanCast("HoG"))
                     {
                         WoW.CastSpell("HoG");
                         return;
                     }
 
-                    if (WoW.IsInCombat && !WoW.PlayerIsCasting && lastpetstatus &&
-                        !WoW.WasLastCasted("DemonicEmpowerment")
-                        && WoW.CanCast("DemonicEmpowerment"))
+                    if (WoW.IsInCombat && !WoW.PlayerIsCasting && lastpetstatus && !WoW.WasLastCasted("DemonicEmpowerment") && WoW.CanCast("DemonicEmpowerment"))
                     {
                         WoW.CastSpell("DemonicEmpowerment");
                         return;
                     }
 
-                    if (WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && !WoW.PlayerIsCasting && !lastpetstatus &&
-                        !WoW.IsSpellOnCooldown("TK") && WoW.CanCast("TK")
-                        && WoW.WildImpsCount >= 1 && WoW.DreadstalkersCount >= 1)
+                    if (WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && !WoW.PlayerIsCasting && !lastpetstatus && !WoW.IsSpellOnCooldown("TK") && WoW.CanCast("TK") &&
+                        WoW.WildImpsCount >= 1 && WoW.DreadstalkersCount >= 1)
                     {
                         WoW.CastSpell("TK");
                         return;
                     }
 
-                    if (WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && !WoW.PlayerIsCasting &&
-                        !WoW.PlayerIsChanneling && WoW.PlayerSpellCharges("Shadowflame") == 2 &&
-                        WoW.IsSpellInRange("Shadowflame")
-                        && WoW.CanCast("Shadowflame"))
+                    if (WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && !WoW.PlayerIsCasting && !WoW.PlayerIsChanneling && WoW.PlayerSpellCharges("Shadowflame") == 2 &&
+                        WoW.IsSpellInRange("Shadowflame") && WoW.CanCast("Shadowflame"))
                     {
                         WoW.CastSpell("Shadowflame");
                         return;
@@ -257,8 +240,7 @@ namespace PixelMagic.Rotation
                         return;
                     }
 
-                    if (WoW.CanCast("Demonbolt") && WoW.HasTarget && WoW.TargetIsEnemy && !WoW.PlayerIsCasting &&
-                        WoW.IsInCombat && WoW.IsSpellInRange("Shadowflame"))
+                    if (WoW.CanCast("Demonbolt") && WoW.HasTarget && WoW.TargetIsEnemy && !WoW.PlayerIsCasting && WoW.IsInCombat && WoW.IsSpellInRange("Shadowflame"))
                     {
                         WoW.CastSpell("Demonbolt");
                         return;
@@ -283,31 +265,27 @@ namespace PixelMagic.Rotation
             {
                 if (WoW.IsMoving) /* AOE WHEN MOVING */
                 {
-                    if (WoW.HasTarget && WoW.TargetIsEnemy && !WoW.PlayerIsCasting && !WoW.PlayerIsChanneling &&
-                        WoW.IsInCombat && WoW.WasLastCasted("HoG") && WoW.CanCast("Implosion"))
+                    if (WoW.HasTarget && WoW.TargetIsEnemy && !WoW.PlayerIsCasting && !WoW.PlayerIsChanneling && WoW.IsInCombat && WoW.WasLastCasted("HoG") && WoW.CanCast("Implosion"))
                     {
                         WoW.CastSpell("Implosion");
                         return;
                     }
 
-                    if (WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && WoW.PlayerSpellCharges("Shadowflame") == 1
-                        && WoW.TargetHasDebuff("Shadowflame") && WoW.TargetDebuffTimeRemaining("Shadowflame") < 3 &&
-                        WoW.CanCast("Shadowflame") && WoW.IsSpellInRange("Shadowflame"))
+                    if (WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && WoW.PlayerSpellCharges("Shadowflame") == 1 && WoW.TargetHasDebuff("Shadowflame") &&
+                        WoW.TargetDebuffTimeRemaining("Shadowflame") < 3 && WoW.CanCast("Shadowflame") && WoW.IsSpellInRange("Shadowflame"))
                     {
                         WoW.CastSpell("Shadowflame");
                         return;
                     }
 
 
-                    if (WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && WoW.HasPet && WoW.CanCast("Wrathstorm") &&
-                        CombatWatch.ElapsedMilliseconds > 2000)
+                    if (WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && WoW.HasPet && WoW.CanCast("Wrathstorm") && CombatWatch.ElapsedMilliseconds > 2000)
                     {
                         WoW.CastSpell("Wrathstorm");
                     }
 
-                    if (WoW.IsInCombat && WoW.HasTarget && WoW.CanCast("Shadowflame") && WoW.TargetIsEnemy &&
-                        !WoW.PlayerIsCasting && !WoW.PlayerIsChanneling && WoW.PlayerSpellCharges("Shadowflame") == 2
-                        && WoW.IsSpellInRange("Shadowflame"))
+                    if (WoW.IsInCombat && WoW.HasTarget && WoW.CanCast("Shadowflame") && WoW.TargetIsEnemy && !WoW.PlayerIsCasting && !WoW.PlayerIsChanneling &&
+                        WoW.PlayerSpellCharges("Shadowflame") == 2 && WoW.IsSpellInRange("Shadowflame"))
                     {
                         WoW.CastSpell("Shadowflame");
                         return;
@@ -325,8 +303,7 @@ namespace PixelMagic.Rotation
                         return;
                     }
 
-                    if (WoW.IsInCombat && WoW.CanCast("Demonwrath") && WoW.HasTarget && WoW.HasPet && WoW.TargetIsEnemy &&
-                        !WoW.PlayerIsCasting && !WoW.PlayerIsChanneling)
+                    if (WoW.IsInCombat && WoW.CanCast("Demonwrath") && WoW.HasTarget && WoW.HasPet && WoW.TargetIsEnemy && !WoW.PlayerIsCasting && !WoW.PlayerIsChanneling)
                     {
                         WoW.CastSpell("Demonwrath");
                         return;
@@ -335,37 +312,32 @@ namespace PixelMagic.Rotation
 
                 if (!WoW.IsMoving) /* AOE WHEN NOT MOVING */
                 {
-                    if (WoW.HasTarget && WoW.TargetIsEnemy && !WoW.PlayerIsCasting && !WoW.PlayerIsChanneling &&
-                        WoW.IsInCombat && WoW.WasLastCasted("HoG") && WoW.CanCast("Implosion"))
+                    if (WoW.HasTarget && WoW.TargetIsEnemy && !WoW.PlayerIsCasting && !WoW.PlayerIsChanneling && WoW.IsInCombat && WoW.WasLastCasted("HoG") && WoW.CanCast("Implosion"))
                     {
                         WoW.CastSpell("Implosion");
                         return;
                     }
 
-                    if (WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && WoW.PlayerSpellCharges("Shadowflame") == 1
-                        && WoW.TargetHasDebuff("Shadowflame") && WoW.TargetDebuffTimeRemaining("Shadowflame") < 3 &&
-                        WoW.CanCast("Shadowflame") && WoW.IsSpellInRange("Shadowflame"))
+                    if (WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && WoW.PlayerSpellCharges("Shadowflame") == 1 && WoW.TargetHasDebuff("Shadowflame") &&
+                        WoW.TargetDebuffTimeRemaining("Shadowflame") < 3 && WoW.CanCast("Shadowflame") && WoW.IsSpellInRange("Shadowflame"))
                     {
                         WoW.CastSpell("Shadowflame");
                         return;
                     }
 
-                    if (WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && WoW.HasPet && WoW.CanCast("Wrathstorm") &&
-                        CombatWatch.ElapsedMilliseconds > 2000)
+                    if (WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && WoW.HasPet && WoW.CanCast("Wrathstorm") && CombatWatch.ElapsedMilliseconds > 2000)
                     {
                         WoW.CastSpell("Wrathstorm");
                     }
 
-                    if (WoW.HasTarget && WoW.TargetIsEnemy && WoW.IsInCombat && WoW.CurrentSoulShards >= 3
-                        && WoW.IsSpellInRange("HoG") && WoW.CanCast("HoG"))
+                    if (WoW.HasTarget && WoW.TargetIsEnemy && WoW.IsInCombat && WoW.CurrentSoulShards >= 3 && WoW.IsSpellInRange("HoG") && WoW.CanCast("HoG"))
                     {
                         WoW.CastSpell("HoG");
                         return;
                     }
 
-                    if (WoW.IsInCombat && WoW.HasTarget && WoW.CanCast("Shadowflame") && WoW.TargetIsEnemy &&
-                        !WoW.PlayerIsCasting && !WoW.PlayerIsChanneling && WoW.PlayerSpellCharges("Shadowflame") == 2
-                        && WoW.IsSpellInRange("Shadowflame"))
+                    if (WoW.IsInCombat && WoW.HasTarget && WoW.CanCast("Shadowflame") && WoW.TargetIsEnemy && !WoW.PlayerIsCasting && !WoW.PlayerIsChanneling &&
+                        WoW.PlayerSpellCharges("Shadowflame") == 2 && WoW.IsSpellInRange("Shadowflame"))
                     {
                         WoW.CastSpell("Shadowflame");
                         return;
@@ -383,8 +355,7 @@ namespace PixelMagic.Rotation
                         return;
                     }
 
-                    if (WoW.IsInCombat && WoW.CanCast("Demonwrath") && WoW.HasTarget && WoW.TargetIsEnemy && WoW.HasPet &&
-                        !WoW.PlayerIsCasting && !WoW.PlayerIsChanneling)
+                    if (WoW.IsInCombat && WoW.CanCast("Demonwrath") && WoW.HasTarget && WoW.TargetIsEnemy && WoW.HasPet && !WoW.PlayerIsCasting && !WoW.PlayerIsChanneling)
                     {
                         WoW.CastSpell("Demonwrath");
                     }

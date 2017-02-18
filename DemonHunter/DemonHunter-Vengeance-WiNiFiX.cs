@@ -3,20 +3,25 @@
 
 
 using System.Diagnostics;
-using PixelMagic.Helpers;
 using System.Drawing;
 using System.Windows.Forms;
 using PixelMagic.GUI;
+using PixelMagic.Helpers;
 
 namespace PixelMagic.Rotation
 {
     public class DemonHunterVeng : CombatRoutine
     {
+        private readonly Stopwatch interruptwatch = new Stopwatch();
         public override string Name => "PixelMagic Vengeance";
 
         public override string Class => "Demon Hunter";
 
-        private readonly Stopwatch interruptwatch = new Stopwatch();
+        public override Form SettingsForm
+        {
+            get { return new frmVengance(); }
+            set { }
+        }
 
         public override void Initialize()
         {
@@ -31,12 +36,13 @@ namespace PixelMagic.Rotation
 
         public override void Pulse()
         {
-            if (WoW.IsInCombat) {
+            if (WoW.IsInCombat)
+            {
                 interruptwatch.Start();
             }
 
-            if (UseCooldowns) {
-
+            if (UseCooldowns)
+            {
             }
 
             //if (WoW.PlayerHasBuff("Mount")) return;
@@ -45,23 +51,27 @@ namespace PixelMagic.Rotation
 
             if (!WoW.HasTarget || !WoW.TargetIsEnemy) return;
 
-            if (WoW.HealthPercent < 30 && !WoW.IsSpellOnCooldown("Metamorphasis")) {
+            if (WoW.HealthPercent < 30 && !WoW.IsSpellOnCooldown("Metamorphasis"))
+            {
                 WoW.Speak("Metamorphasis");
                 Log.Write("Health low < 70% using CDs...", Color.Red);
                 WoW.CastSpell("Metamorphasis"); // Off the GCD no return needed
             }
 
-            if (WoW.PlayerHasBuff("Metamorphasis") && WoW.CanCast("Sever")) {
+            if (WoW.PlayerHasBuff("Metamorphasis") && WoW.CanCast("Sever"))
+            {
                 WoW.CastSpell("Sever");
                 return;
             }
 
-            if (WoW.PlayerHasBuff("Metamorphasis") && WoW.PlayerHasBuff("Soul Fragments") && (WoW.PlayerBuffStacks("Soul Fragments") >= 5) && WoW.Pain >= 50) {
+            if (WoW.PlayerHasBuff("Metamorphasis") && WoW.PlayerHasBuff("Soul Fragments") && (WoW.PlayerBuffStacks("Soul Fragments") >= 5) && WoW.Pain >= 50)
+            {
                 WoW.CastSpell("Soul Cleave");
                 return;
             }
 
-            if (!WoW.IsSpellInRange("Soul Carver") && !WoW.IsSpellOnCooldown("Throw Glaive") && WoW.IsSpellInRange("Throw Glaive") && WoW.CanCast("Throw Glaive")) {
+            if (!WoW.IsSpellInRange("Soul Carver") && !WoW.IsSpellOnCooldown("Throw Glaive") && WoW.IsSpellInRange("Throw Glaive") && WoW.CanCast("Throw Glaive"))
+            {
                 WoW.CastSpell("Throw Glaive");
                 return;
             }
@@ -69,8 +79,10 @@ namespace PixelMagic.Rotation
             if (!WoW.IsSpellInRange("Soul Carver")) // If we are out of melee range return
                 return;
 
-            if (WoW.TargetIsCasting && interruptwatch.ElapsedMilliseconds > 1200) {
-                if (!WoW.IsSpellOnCooldown("Sigil of Silence") && WoW.WasLastCasted("Arcane Torrent")) {
+            if (WoW.TargetIsCasting && interruptwatch.ElapsedMilliseconds > 1200)
+            {
+                if (!WoW.IsSpellOnCooldown("Sigil of Silence") && WoW.WasLastCasted("Arcane Torrent"))
+                {
                     WoW.Speak("Interrupting spell");
                     WoW.CastSpell("Sigil of Silence");
                     interruptwatch.Reset();
@@ -78,7 +90,8 @@ namespace PixelMagic.Rotation
                     return;
                 }
 
-                if (!WoW.IsSpellOnCooldown("Arcane Torrent") && WoW.WasLastCasted("Sigil of Silence")) {
+                if (!WoW.IsSpellOnCooldown("Arcane Torrent") && WoW.WasLastCasted("Sigil of Silence"))
+                {
                     WoW.Speak("Interrupting spell");
                     WoW.CastSpell("Arcane Torrent");
                     interruptwatch.Reset();
@@ -87,35 +100,42 @@ namespace PixelMagic.Rotation
                 }
             }
 
-            if (!WoW.TargetHasDebuff("Fiery Demise") && !WoW.IsSpellOnCooldown("Fiery Brand")) {
+            if (!WoW.TargetHasDebuff("Fiery Demise") && !WoW.IsSpellOnCooldown("Fiery Brand"))
+            {
                 WoW.CastSpell("Fiery Brand");
             }
 
-            if (WoW.CanCast("Demon Spikes") && !WoW.PlayerHasBuff("Demon Spikes") && WoW.Pain > 20 && !WoW.PlayerHasBuff("Magnum Opus")) {
+            if (WoW.CanCast("Demon Spikes") && !WoW.PlayerHasBuff("Demon Spikes") && WoW.Pain > 20 && !WoW.PlayerHasBuff("Magnum Opus"))
+            {
                 WoW.CastSpell("Demon Spikes");
             }
 
-            if (WoW.CanCast("Soul Carver")) {
+            if (WoW.CanCast("Soul Carver"))
+            {
                 WoW.CastSpell("Soul Carver");
             }
 
-            if (WoW.CanCast("Fel Devastation") && WoW.Pain >= 30) {
+            if (WoW.CanCast("Fel Devastation") && WoW.Pain >= 30)
+            {
                 WoW.CastSpell("Fel Devastation");
             }
 
-            if (WoW.CanCast("Soul Cleave") && WoW.Pain >= 50) {
+            if (WoW.CanCast("Soul Cleave") && WoW.Pain >= 50)
+            {
                 WoW.CastSpell("Soul Cleave");
                 return;
             }
 
-            if (WoW.CanCast("Immolation Aura")) {
+            if (WoW.CanCast("Immolation Aura"))
+            {
                 WoW.CastSpell("Immolation Aura");
                 return;
             }
 
-            if (WoW.CanCast("Sigil of Flame") && (!WoW.TargetHasDebuff("Sigil of Flame"))) {
+            if (WoW.CanCast("Sigil of Flame") && !WoW.TargetHasDebuff("Sigil of Flame"))
+            {
                 //WoW.CastSpellOnMe("Sigil of Flame");  // Use this if you not using "Concentrated Sigil's" talent - this is a little buggy!!!
-                WoW.CastSpell("Sigil of Flame");  // NB must have "Concentrated Sigil's" talent
+                WoW.CastSpell("Sigil of Flame"); // NB must have "Concentrated Sigil's" talent
                 return;
             }
 
@@ -125,27 +145,13 @@ namespace PixelMagic.Rotation
             //	return;
             //}
 
-            if (WoW.CanCast("Shear"))  // Pain Generator
+            if (WoW.CanCast("Shear")) // Pain Generator
             {
                 WoW.CastSpell("Shear");
-                return;
-            }
-        }
-
-        public override Form SettingsForm
-        {
-            get
-            {
-                return new frmVengance();
-            }
-            set
-            {
-
             }
         }
     }
 }
-
 
 /*
 [AddonDetails.db]
@@ -175,4 +181,3 @@ Aura,204598,Sigil of Flame
 Aura,203981,Soul Fragments
 Item,80610,Mana
 */
-

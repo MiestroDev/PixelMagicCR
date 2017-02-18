@@ -23,7 +23,6 @@ namespace PixelMagic.Rotation
 
         public override void Stop()
         {
-
         }
 
         public override void Pulse() // Updated for Legion (tested and working for single target)

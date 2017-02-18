@@ -59,15 +59,16 @@ namespace PixelMagic.Rotation
         private static readonly float gcd = 1.5f;
 
         private static readonly float EnergyMax = WoW.Energy;
-        
+
         private readonly Stopwatch CombatTime = new Stopwatch();
+
+        private readonly string readme = "Mixo's WindWalker Rotation v2.5" + Environment.NewLine + "" + Environment.NewLine + "Not added yet. Reference the .cs file for a Readme." +
+                                         Environment.NewLine + "";
+
         private CheckBox GaleBurstBox;
 
         //Settings
         private CheckBox KatsuoBox;
-
-        private readonly string readme = "Mixo's WindWalker Rotation v2.5" + Environment.NewLine + "" + Environment.NewLine + "Not added yet. Reference the .cs file for a Readme." +
-                                         Environment.NewLine + "";
 
         //Talents
         private CheckBox SerenityBox;
@@ -215,7 +216,7 @@ namespace PixelMagic.Rotation
         public override void Stop()
         {
         }
-        
+
         public override void Pulse()
         {
             //Combat Time
@@ -239,7 +240,7 @@ namespace PixelMagic.Rotation
             }
 
             var EnergyPct = WoW.Energy/EnergyMax*100f;
-            
+
             // Single Target Rotation
             if (combatRoutine.Type == RotationType.SingleTarget)
             {
@@ -264,7 +265,8 @@ namespace PixelMagic.Rotation
 
                     //Touch Of Death (Serenity talent) [Gale]
                     if (WoW.CanCast("TouchOfDeath") && WoW.IsSpellInRange("TigerPalm") && WoW.SpellCooldownTimeRemaining("Serenity") < 2 && WoW.SpellCooldownTimeRemaining("RisingSunKick") < 2 &&
-                        WoW.SpellCooldownTimeRemaining("FistsOfFury") < 8 && WoW.SpellCooldownTimeRemaining("StrikeOfTheWindlord") <= 4 && Serenity && GaleBurst && WoW.CurrentChi >= 2 && UseCooldowns)
+                        WoW.SpellCooldownTimeRemaining("FistsOfFury") < 8 && WoW.SpellCooldownTimeRemaining("StrikeOfTheWindlord") <= 4 && Serenity && GaleBurst && WoW.CurrentChi >= 2 &&
+                        UseCooldowns)
                     {
                         WoW.CastSpell("TouchOfDeath");
                         HitCombo = "TouchOfDeath";
@@ -273,7 +275,8 @@ namespace PixelMagic.Rotation
 
                     //Touch Of Death (WDP talent) [Gale]
                     if (WoW.CanCast("TouchOfDeath") && WoW.IsSpellInRange("TigerPalm") && WoW.SpellCooldownTimeRemaining("RisingSunKick") < 7 &&
-                        WoW.SpellCooldownTimeRemaining("FistsOfFury") <= 4 && WoW.SpellCooldownTimeRemaining("StrikeOfTheWindlord") < 8 && !Serenity && GaleBurst && WoW.CurrentChi >= 2 && UseCooldowns)
+                        WoW.SpellCooldownTimeRemaining("FistsOfFury") <= 4 && WoW.SpellCooldownTimeRemaining("StrikeOfTheWindlord") < 8 && !Serenity && GaleBurst && WoW.CurrentChi >= 2 &&
+                        UseCooldowns)
                     {
                         WoW.CastSpell("TouchOfDeath");
                         HitCombo = "TouchOfDeath";

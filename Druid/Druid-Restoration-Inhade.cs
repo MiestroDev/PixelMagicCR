@@ -2455,10 +2455,10 @@ namespace PixelMagic.Rotation
             }
         }
 
-        private void DisplayOverlayButton_Click(object sender, EventArgs e)
+        public void DisplayOverlayButton_Click(object sender, EventArgs e)
         {
             DisplayText = "Overlay Activated";
-            var frm = new DisplayInfoForm();
+            var frm = new DisplayInfoFormRDI();
             frm.Show();
             Log.Write("Overlay Activated", Color.Green);
         }
@@ -4700,7 +4700,7 @@ namespace PixelMagic.Rotation
         }
     }
 
-    public class DisplayInfoForm : Form
+    public class DisplayInfoFormRDI : Form
     {
         private const uint SWP_NOSIZE = 0x0001;
         private const uint SWP_NOMOVE = 0x0002;
@@ -4720,7 +4720,7 @@ namespace PixelMagic.Rotation
         private Timer OverlayDisplayTimer;
         private readonly RECT rect;
 
-        public DisplayInfoForm()
+        public DisplayInfoFormRDI()
         {
             DisplayLabel = new Label();
             GetWindowRect(WindowHandle, ref rect);
@@ -4766,7 +4766,7 @@ namespace PixelMagic.Rotation
             set { base.BackColor = value; }
         }
 
-        public static Process[] Processes
+        private static Process[] Processes
         {
             get
             {

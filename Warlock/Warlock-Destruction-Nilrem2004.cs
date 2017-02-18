@@ -56,7 +56,8 @@ namespace PixelMagic.Rotation
                     }
                 }
 
-                if (WoW.IsInCombat && Control.ModifierKeys == Keys.Shift && !WoW.PlayerIsCasting) /* Havoc on mouseover target, create macro to use: #showtooltip /cast [target=mouseover,harm,exists,nodead] Havoc; Havoc */
+                if (WoW.IsInCombat && Control.ModifierKeys == Keys.Shift && !WoW.PlayerIsCasting)
+                    /* Havoc on mouseover target, create macro to use: #showtooltip /cast [target=mouseover,harm,exists,nodead] Havoc; Havoc */
                 {
                     WoW.CastSpell("Havoc");
                     return;
@@ -93,29 +94,26 @@ namespace PixelMagic.Rotation
                             return;
                         }
 
-                        if (WoW.TargetDebuffTimeRemaining("AuraImmolate") <= 4.2 && !WoW.WasLastCasted("Immolate") &&
-                            WoW.CanCast("Immolate"))
+                        if (WoW.TargetDebuffTimeRemaining("AuraImmolate") <= 4.2 && !WoW.WasLastCasted("Immolate") && WoW.CanCast("Immolate"))
                         {
                             WoW.CastSpell("Immolate");
                             return;
                         }
 
-                        if (WoW.TargetDebuffTimeRemaining("AuraImmolate") >= 10 && WoW.PlayerSpellCharges("Conflagrate") == 1 &&
-                            WoW.WasLastCasted("Conflagrate") && WoW.CanCast("Conflagrate"))
+                        if (WoW.TargetDebuffTimeRemaining("AuraImmolate") >= 10 && WoW.PlayerSpellCharges("Conflagrate") == 1 && WoW.WasLastCasted("Conflagrate") && WoW.CanCast("Conflagrate"))
                         {
                             WoW.CastSpell("Conflagrate");
                             return;
                         }
 
-                        if (WoW.PlayerHasBuff("AuraConflagrateBuff") && WoW.TargetHasDebuff("AuraChaosBolt") &&
-                            WoW.CanCast("Conflagrate") && WoW.CurrentSoulShards <= 4 && WoW.CanCast("Conflagrate"))
+                        if (WoW.PlayerHasBuff("AuraConflagrateBuff") && WoW.TargetHasDebuff("AuraChaosBolt") && WoW.CanCast("Conflagrate") && WoW.CurrentSoulShards <= 4 &&
+                            WoW.CanCast("Conflagrate"))
                         {
                             WoW.CastSpell("Conflagrate");
                             return;
                         }
 
-                        if (WoW.CanCast("Conflagrate") && WoW.PlayerSpellCharges("Conflagrate") == 2 &&
-                            !WoW.WasLastCasted("Immolate") && WoW.CurrentSoulShards <= 4)
+                        if (WoW.CanCast("Conflagrate") && WoW.PlayerSpellCharges("Conflagrate") == 2 && !WoW.WasLastCasted("Immolate") && WoW.CurrentSoulShards <= 4)
                         {
                             WoW.CastSpell("Conflagrate");
                             return;
@@ -137,8 +135,7 @@ namespace PixelMagic.Rotation
                             return;
                         }
 
-                        if (WoW.CanCast("ChaosBolt") /* && !WoW.WasLastCasted("ChaosBolt")  */&&
-                            WoW.CurrentSoulShards > 3)
+                        if (WoW.CanCast("ChaosBolt") /* && !WoW.WasLastCasted("ChaosBolt")  */&& WoW.CurrentSoulShards > 3)
                         {
                             WoW.CastSpell("ChaosBolt");
                             return;
@@ -169,8 +166,7 @@ namespace PixelMagic.Rotation
                             return;
                         }
 
-                        if (WoW.CanCast("Incinerate") && WoW.TargetHasDebuff("AuraChaosBolt") &&
-                            WoW.TargetDebuffTimeRemaining("AuraChaosBolt") >= 2 && WoW.CurrentSoulShards <= 3)
+                        if (WoW.CanCast("Incinerate") && WoW.TargetHasDebuff("AuraChaosBolt") && WoW.TargetDebuffTimeRemaining("AuraChaosBolt") >= 2 && WoW.CurrentSoulShards <= 3)
                         {
                             WoW.CastSpell("Incinerate");
                             return;

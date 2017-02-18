@@ -24,7 +24,7 @@ namespace PixelMagic.Rotation
         return buffs;
     } */
         public override Form SettingsForm { get; set; }
-        public SettingsForm2 SettingsForm2 { get; set; }
+        public SettingsFormCJO SettingsFormCJO { get; set; }
 
         public int GetRolltheBonesBuffs
         {
@@ -246,82 +246,82 @@ namespace PixelMagic.Rotation
             Log.Write("Welcome to CreepyOutlaw rotation. V2.2. Report any issues on #rogue Discord channel with @Creepyjoker tag for further fixes.", Color.Red);
             Log.Write("Suggested build: 1212231");
             WoW.Speak("Welcome to CreepyOutlaw rotation.");
-            SettingsForm2 = new SettingsForm2();
-            SettingsForm = SettingsForm2;
+            SettingsFormCJO = new SettingsFormCJO();
+            SettingsForm = SettingsFormCJO;
 
-            SettingsForm2.btnHotkeysOutlawOffensiveCooldowns.Text = cooldownHotKeyString;
-            SettingsForm2.checkTalentGhostlySt.Checked = isTalentGhostlySt;
-            SettingsForm2.checkTalentSND.Checked = isTalentSND;
-            SettingsForm2.checkTalentRTB.Checked = isTalentRTB;
-            SettingsForm2.checkTalentMFD.Checked = isTalentMFD;
+            SettingsFormCJO.btnHotkeysOutlawOffensiveCooldowns.Text = cooldownHotKeyString;
+            SettingsFormCJO.checkTalentGhostlySt.Checked = isTalentGhostlySt;
+            SettingsFormCJO.checkTalentSND.Checked = isTalentSND;
+            SettingsFormCJO.checkTalentRTB.Checked = isTalentRTB;
+            SettingsFormCJO.checkTalentMFD.Checked = isTalentMFD;
 
-            SettingsForm2.checkHotkeysOutlawOffensiveAR.Checked = isCheckHotkeysOutlawOffensiveAR;
-            SettingsForm2.checkHotkeysOutlawOffensiveCursedBl.Checked = isCheckHotkeysOutlawOffensiveCursedBl;
-            SettingsForm2.checkHotkeysOutlawOffensiveAROnBossOnly.Checked = OutlawOffensiveAROnBossOnly;
-            SettingsForm2.checkHotkeysOutlawOffensiveCursedBlOnBossOnly.Checked = OutlawOffensiveCursedBlOnBossOnly;
-            SettingsForm2.checkHotkeysOutlawRiposte.Checked = isCheckHotkeysOutlawRiposte;
-            SettingsForm2.checkHotkeysOutlawVial.Checked = isCheckHotkeysOutlawVial;
-            SettingsForm2.checkHotkeysOutlawRTBEnergy.Text = RTBEnergy.ToString();
-            SettingsForm2.checkHotkeysOutlawRunEnergy.Text = RunThroughEnergy.ToString();
-            SettingsForm2.checkHotkeysOutlawValueRTB.Text = ValueRTB.ToString();
+            SettingsFormCJO.checkHotkeysOutlawOffensiveAR.Checked = isCheckHotkeysOutlawOffensiveAR;
+            SettingsFormCJO.checkHotkeysOutlawOffensiveCursedBl.Checked = isCheckHotkeysOutlawOffensiveCursedBl;
+            SettingsFormCJO.checkHotkeysOutlawOffensiveAROnBossOnly.Checked = OutlawOffensiveAROnBossOnly;
+            SettingsFormCJO.checkHotkeysOutlawOffensiveCursedBlOnBossOnly.Checked = OutlawOffensiveCursedBlOnBossOnly;
+            SettingsFormCJO.checkHotkeysOutlawRiposte.Checked = isCheckHotkeysOutlawRiposte;
+            SettingsFormCJO.checkHotkeysOutlawVial.Checked = isCheckHotkeysOutlawVial;
+            SettingsFormCJO.checkHotkeysOutlawRTBEnergy.Text = RTBEnergy.ToString();
+            SettingsFormCJO.checkHotkeysOutlawRunEnergy.Text = RunThroughEnergy.ToString();
+            SettingsFormCJO.checkHotkeysOutlawValueRTB.Text = ValueRTB.ToString();
 
-            SettingsForm2.checkTalentGhostlySt.CheckedChanged += isTalentGhostlySt_Click;
-            SettingsForm2.checkTalentRTB.CheckedChanged += isTalentRTB_Click;
-            SettingsForm2.checkTalentSND.CheckedChanged += isTalentSND_Click;
-            SettingsForm2.checkTalentMFD.CheckedChanged += isTalentMFD_Click;
-            SettingsForm2.checkHotkeysOutlawVial.CheckedChanged += isCheckHotkeysOutlawVial_Click;
-            SettingsForm2.checkHotkeysOutlawRTBEnergy.TextChanged += isCheckHotkeysOutlawRTBEnergy_Click;
-            SettingsForm2.checkHotkeysOutlawValueRTB.TextChanged += isCheckHotkeysOutlawValueRTB_Click;
-            SettingsForm2.checkHotkeysOutlawRiposte.CheckedChanged += isCheckHotkeysOutlawRiposte_Click;
-            SettingsForm2.checkHotkeysOutlawRunEnergy.TextChanged += isCheckHotkeysOutlawRunEnergy_Click;
-            SettingsForm2.checkHotkeysOutlawOffensiveCursedBl.CheckedChanged += isCheckHotkeysOutlawOffensiveCursedBl_Click;
-            SettingsForm2.checkHotkeysOutlawOffensiveAR.CheckedChanged += isCheckHotkeysOutlawOffensiveAR_Click;
-            SettingsForm2.checkHotkeysOutlawOffensiveCursedBlOnBossOnly.CheckedChanged += OutlawOffensiveCursedBlOnBossOnly_Click;
-            SettingsForm2.checkHotkeysOutlawOffensiveAROnBossOnly.CheckedChanged += OutlawOffensiveAROnBossOnly_Click;
-            SettingsForm2.btnHotkeysOutlawOffensiveCooldowns.KeyDown += KeyDown;
+            SettingsFormCJO.checkTalentGhostlySt.CheckedChanged += isTalentGhostlySt_Click;
+            SettingsFormCJO.checkTalentRTB.CheckedChanged += isTalentRTB_Click;
+            SettingsFormCJO.checkTalentSND.CheckedChanged += isTalentSND_Click;
+            SettingsFormCJO.checkTalentMFD.CheckedChanged += isTalentMFD_Click;
+            SettingsFormCJO.checkHotkeysOutlawVial.CheckedChanged += isCheckHotkeysOutlawVial_Click;
+            SettingsFormCJO.checkHotkeysOutlawRTBEnergy.TextChanged += isCheckHotkeysOutlawRTBEnergy_Click;
+            SettingsFormCJO.checkHotkeysOutlawValueRTB.TextChanged += isCheckHotkeysOutlawValueRTB_Click;
+            SettingsFormCJO.checkHotkeysOutlawRiposte.CheckedChanged += isCheckHotkeysOutlawRiposte_Click;
+            SettingsFormCJO.checkHotkeysOutlawRunEnergy.TextChanged += isCheckHotkeysOutlawRunEnergy_Click;
+            SettingsFormCJO.checkHotkeysOutlawOffensiveCursedBl.CheckedChanged += isCheckHotkeysOutlawOffensiveCursedBl_Click;
+            SettingsFormCJO.checkHotkeysOutlawOffensiveAR.CheckedChanged += isCheckHotkeysOutlawOffensiveAR_Click;
+            SettingsFormCJO.checkHotkeysOutlawOffensiveCursedBlOnBossOnly.CheckedChanged += OutlawOffensiveCursedBlOnBossOnly_Click;
+            SettingsFormCJO.checkHotkeysOutlawOffensiveAROnBossOnly.CheckedChanged += OutlawOffensiveAROnBossOnly_Click;
+            SettingsFormCJO.btnHotkeysOutlawOffensiveCooldowns.KeyDown += KeyDown;
         }
 
         private void KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Menu || e.KeyCode == Keys.ControlKey || e.KeyCode == Keys.ShiftKey)
                 return;
-            SettingsForm2.btnHotkeysOutlawOffensiveCooldowns.Text = "Hotkey : ";
+            SettingsFormCJO.btnHotkeysOutlawOffensiveCooldowns.Text = "Hotkey : ";
             if (e.Shift)
             {
                 cooldownModifier = (int) Keys.ShiftKey;
-                SettingsForm2.btnHotkeysOutlawOffensiveCooldowns.Text += Keys.Shift + " + ";
+                SettingsFormCJO.btnHotkeysOutlawOffensiveCooldowns.Text += Keys.Shift + " + ";
             }
             if (e.Alt)
             {
                 cooldownModifier = (int) Keys.Menu;
-                SettingsForm2.btnHotkeysOutlawOffensiveCooldowns.Text += Keys.Alt + " + ";
+                SettingsFormCJO.btnHotkeysOutlawOffensiveCooldowns.Text += Keys.Alt + " + ";
             }
             if (e.Control)
             {
                 cooldownModifier = (int) Keys.ControlKey;
-                SettingsForm2.btnHotkeysOutlawOffensiveCooldowns.Text += Keys.Control + " + ";
+                SettingsFormCJO.btnHotkeysOutlawOffensiveCooldowns.Text += Keys.Control + " + ";
             }
             cooldownKey = (int) e.KeyCode;
-            SettingsForm2.btnHotkeysOutlawOffensiveCooldowns.Text += e.KeyCode;
-            cooldownHotKeyString = SettingsForm2.btnHotkeysOutlawOffensiveCooldowns.Text;
-            SettingsForm2.checkHotkeysOutlawRTBEnergyLabel.Focus();
+            SettingsFormCJO.btnHotkeysOutlawOffensiveCooldowns.Text += e.KeyCode;
+            cooldownHotKeyString = SettingsFormCJO.btnHotkeysOutlawOffensiveCooldowns.Text;
+            SettingsFormCJO.checkHotkeysOutlawRTBEnergyLabel.Focus();
         }
 
         private void isCheckHotkeysOutlawVial_Click(object sender, EventArgs e)
         {
-            isCheckHotkeysOutlawVial = SettingsForm2.checkHotkeysOutlawVial.Checked;
+            isCheckHotkeysOutlawVial = SettingsFormCJO.checkHotkeysOutlawVial.Checked;
         }
 
         private void isCheckHotkeysOutlawRTBEnergy_Click(object sender, EventArgs e)
         {
             int userVal;
-            if (int.TryParse(SettingsForm2.checkHotkeysOutlawRTBEnergy.Text, out userVal) && userVal >= 0 && userVal <= 100)
+            if (int.TryParse(SettingsFormCJO.checkHotkeysOutlawRTBEnergy.Text, out userVal) && userVal >= 0 && userVal <= 100)
             {
                 RTBEnergy = userVal;
             }
             else
             {
-                SettingsForm2.checkHotkeysOutlawRTBEnergy.Text = "";
+                SettingsFormCJO.checkHotkeysOutlawRTBEnergy.Text = "";
                 Log.Write("Enter a number between 0 and 100 in the text box", Color.DarkRed);
             }
         }
@@ -329,80 +329,80 @@ namespace PixelMagic.Rotation
         private void isCheckHotkeysOutlawValueRTB_Click(object sender, EventArgs e)
         {
             int userVal;
-            if (int.TryParse(SettingsForm2.checkHotkeysOutlawValueRTB.Text, out userVal) && userVal >= 0 && userVal <= 6)
+            if (int.TryParse(SettingsFormCJO.checkHotkeysOutlawValueRTB.Text, out userVal) && userVal >= 0 && userVal <= 6)
             {
                 ValueRTB = userVal;
             }
             else
             {
-                SettingsForm2.checkHotkeysOutlawValueRTB.Text = "";
+                SettingsFormCJO.checkHotkeysOutlawValueRTB.Text = "";
                 Log.Write("Enter a number between 0 and 6 in the text box", Color.DarkRed);
             }
         }
 
         private void isCheckHotkeysOutlawRiposte_Click(object sender, EventArgs e)
         {
-            isCheckHotkeysOutlawRiposte = SettingsForm2.checkHotkeysOutlawRiposte.Checked;
+            isCheckHotkeysOutlawRiposte = SettingsFormCJO.checkHotkeysOutlawRiposte.Checked;
         }
 
         private void isCheckHotkeysOutlawRunEnergy_Click(object sender, EventArgs e)
         {
             int userVal;
-            if (int.TryParse(SettingsForm2.checkHotkeysOutlawRunEnergy.Text, out userVal) && userVal >= 0 && userVal <= 100)
+            if (int.TryParse(SettingsFormCJO.checkHotkeysOutlawRunEnergy.Text, out userVal) && userVal >= 0 && userVal <= 100)
             {
                 RunThroughEnergy = userVal;
             }
             else
             {
-                SettingsForm2.checkHotkeysOutlawRunEnergy.Text = "";
+                SettingsFormCJO.checkHotkeysOutlawRunEnergy.Text = "";
                 Log.Write("Enter a number between 0 and 100 in the text box", Color.DarkRed);
             }
         }
 
         private void isCheckHotkeysOutlawOffensiveCursedBl_Click(object sender, EventArgs e)
         {
-            isCheckHotkeysOutlawOffensiveCursedBl = SettingsForm2.checkHotkeysOutlawOffensiveCursedBl.Checked;
+            isCheckHotkeysOutlawOffensiveCursedBl = SettingsFormCJO.checkHotkeysOutlawOffensiveCursedBl.Checked;
         }
 
         private void isCheckHotkeysOutlawOffensiveAR_Click(object sender, EventArgs e)
         {
-            isCheckHotkeysOutlawOffensiveAR = SettingsForm2.checkHotkeysOutlawOffensiveAR.Checked;
+            isCheckHotkeysOutlawOffensiveAR = SettingsFormCJO.checkHotkeysOutlawOffensiveAR.Checked;
         }
 
         private void OutlawOffensiveCursedBlOnBossOnly_Click(object sender, EventArgs e)
         {
-            OutlawOffensiveCursedBlOnBossOnly = SettingsForm2.checkHotkeysOutlawOffensiveCursedBlOnBossOnly.Checked;
+            OutlawOffensiveCursedBlOnBossOnly = SettingsFormCJO.checkHotkeysOutlawOffensiveCursedBlOnBossOnly.Checked;
         }
 
         private void OutlawOffensiveAROnBossOnly_Click(object sender, EventArgs e)
         {
-            OutlawOffensiveAROnBossOnly = SettingsForm2.checkHotkeysOutlawOffensiveAROnBossOnly.Checked;
+            OutlawOffensiveAROnBossOnly = SettingsFormCJO.checkHotkeysOutlawOffensiveAROnBossOnly.Checked;
         }
 
         private void isTalentGhostlySt_Click(object sender, EventArgs e)
         {
-            isTalentGhostlySt = SettingsForm2.checkTalentGhostlySt.Checked;
+            isTalentGhostlySt = SettingsFormCJO.checkTalentGhostlySt.Checked;
         }
 
         private void isTalentRTB_Click(object sender, EventArgs e)
         {
-            isTalentRTB = SettingsForm2.checkTalentRTB.Checked;
-            isTalentSND = !SettingsForm2.checkTalentRTB.Checked;
-            SettingsForm2.checkTalentSND.Checked = isTalentSND;
+            isTalentRTB = SettingsFormCJO.checkTalentRTB.Checked;
+            isTalentSND = !SettingsFormCJO.checkTalentRTB.Checked;
+            SettingsFormCJO.checkTalentSND.Checked = isTalentSND;
         }
 
         private void isTalentSND_Click(object sender, EventArgs e)
         {
-            isTalentSND = SettingsForm2.checkTalentSND.Checked;
-            isTalentRTB = !SettingsForm2.checkTalentSND.Checked;
-            SettingsForm2.checkTalentRTB.Checked = isTalentRTB;
+            isTalentSND = SettingsFormCJO.checkTalentSND.Checked;
+            isTalentRTB = !SettingsFormCJO.checkTalentSND.Checked;
+            SettingsFormCJO.checkTalentRTB.Checked = isTalentRTB;
         }
 
         private void isTalentMFD_Click(object sender, EventArgs e)
         {
-            isTalentMFD = SettingsForm2.checkTalentMFD.Checked;
-            isTalentSND = !SettingsForm2.checkTalentMFD.Checked;
-            SettingsForm2.checkTalentSND.Checked = isTalentSND;
+            isTalentMFD = SettingsFormCJO.checkTalentMFD.Checked;
+            isTalentSND = !SettingsFormCJO.checkTalentMFD.Checked;
+            SettingsFormCJO.checkTalentSND.Checked = isTalentSND;
         }
 
         public override void Stop()
@@ -747,8 +747,16 @@ namespace PixelMagic.Rotation
         }
     }
 
-    public class SettingsForm2 : Form
+    public class SettingsFormCJO : Form
     {
+        private readonly Label checkHotkeysOutlawRunEnergyLabel;
+
+        private readonly GroupBox groupBox12;
+        private readonly GroupBox groupBox13;
+        private readonly GroupBox groupBox22;
+        private readonly TabControl tabControl3;
+
+        private readonly TabPage tabPage5;
         public Button btnHotkeysOutlawOffensiveCooldowns;
         public CheckBox checkHotkeysOutlawOffensiveAR;
         public CheckBox checkHotkeysOutlawOffensiveAROnBossOnly;
@@ -758,7 +766,6 @@ namespace PixelMagic.Rotation
         public TextBox checkHotkeysOutlawRTBEnergy;
         public Label checkHotkeysOutlawRTBEnergyLabel;
         public TextBox checkHotkeysOutlawRunEnergy;
-        private readonly Label checkHotkeysOutlawRunEnergyLabel;
         public TextBox checkHotkeysOutlawValueRTB;
         public Label checkHotkeysOutlawValueRTBLabel;
         public CheckBox checkHotkeysOutlawVial;
@@ -766,14 +773,7 @@ namespace PixelMagic.Rotation
         public CheckBox checkTalentMFD;
         public CheckBox checkTalentRTB;
         public CheckBox checkTalentSND;
-
-        private readonly GroupBox groupBox12;
-        private readonly GroupBox groupBox13;
-        private readonly GroupBox groupBox22;
-        private readonly TabControl tabControl3;
         public TabPage tabPage2;
-
-        private readonly TabPage tabPage5;
 
         #region Windows Form Designer generated code
 
@@ -781,7 +781,7 @@ namespace PixelMagic.Rotation
         ///     Required method for Designer support - do not modify
         ///     the contents of this method with the code editor.
         /// </summary>
-        public SettingsForm2()
+        public SettingsFormCJO()
         {
             this.tabPage5 = new System.Windows.Forms.TabPage();
             this.groupBox12 = new System.Windows.Forms.GroupBox();

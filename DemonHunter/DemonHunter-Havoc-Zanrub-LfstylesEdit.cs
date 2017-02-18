@@ -9,7 +9,7 @@ using PixelMagic.Helpers;
 
 namespace PixelMagic.Rotation
 {
-    public class DemonHunterHavoc : CombatRoutine
+    public class DemonHunterHavocLF : CombatRoutine
     {
         private NumericUpDown nudBlurPercentValue;
 
@@ -82,8 +82,7 @@ namespace PixelMagic.Rotation
                             WoW.CastSpell("Death Sweep");
                             return;
                         }
-                        if (WoW.CanCast("Annihilation") && WoW.IsSpellInRange("Chaos Strike") && WoW.IsSpellOnCooldown("Eye Beam") &&
-                            (WoW.Fury >= 40 || WoW.Fury >= 70))
+                        if (WoW.CanCast("Annihilation") && WoW.IsSpellInRange("Chaos Strike") && WoW.IsSpellOnCooldown("Eye Beam") && (WoW.Fury >= 40 || WoW.Fury >= 70))
                         {
                             WoW.CastSpell("Annihilation");
                             return;
@@ -99,17 +98,17 @@ namespace PixelMagic.Rotation
                             return;
                         }
                     }
-                    if (WoW.CanCast("Felblade"))  // Fury Generator
+                    if (WoW.CanCast("Felblade")) // Fury Generator
                     {
                         WoW.CastSpell("Felblade");
-			        	return;
+                        return;
                     }
-					if (WoW.CanCast("Chaos Blades") && !WoW.IsSpellOnCooldown("Chaos Blades") && WoW.IsSpellInRange("Chaos Strike"))
+                    if (WoW.CanCast("Chaos Blades") && !WoW.IsSpellOnCooldown("Chaos Blades") && WoW.IsSpellInRange("Chaos Strike"))
                     {
                         WoW.CastSpell("Chaos Blades");
                         return;
                     }
-					if (WoW.CanCast("Nemesis") && !WoW.IsSpellOnCooldown("Nemesis") && WoW.IsSpellInRange("Chaos Strike"))
+                    if (WoW.CanCast("Nemesis") && !WoW.IsSpellOnCooldown("Nemesis") && WoW.IsSpellInRange("Chaos Strike"))
                     {
                         WoW.CastSpell("Nemesis");
                         return;
@@ -142,7 +141,6 @@ namespace PixelMagic.Rotation
                     if (WoW.CanCast("Blur") && WoW.IsInCombat && !WoW.IsSpellOnCooldown("Blur") && WoW.HealthPercent <= ConfigFile.ReadValue<int>("Demonhunter", "Blur Usage Percent"))
                     {
                         WoW.CastSpell("Blur");
-                        return;
                     }
                     //if (WoW.CanCast("Demons Bite") && WoW.IsSpellInRange("Chaos Strike") && WoW.Fury <= 70) // Fury Generator
                     //{

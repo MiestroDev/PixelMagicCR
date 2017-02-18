@@ -54,12 +54,14 @@ namespace PixelMagic.Rotation
 		public Stopwatch togglewatch = new Stopwatch();
 		public Stopwatch openerwatch = new Stopwatch();
 		public Stopwatch LBwatch = new Stopwatch();
+		public Stopwatch pyrowatch = new Stopwatch();
 		public Stopwatch openertimer = new Stopwatch();
 		public Stopwatch meteorwatch = new Stopwatch();
 		public Stopwatch CombatWatch = new Stopwatch();
 		public Stopwatch flamewatch = new Stopwatch();
 		public Stopwatch autoCDwatch = new Stopwatch();
 		public Stopwatch interruptwatch = new Stopwatch();
+		public static bool pyrocast = true;
 		public static bool Opener;
 		public static bool UseLB;
 		public static bool autoCD;
@@ -113,6 +115,7 @@ namespace PixelMagic.Rotation
 						Log.Write("To activate/deactivate Opener press F1 (make sure it's not binded in WoW keybinds first!)", Color.Black);	
 						Log.Write("To activate/deactivate using of Living Bomb press F2 (make sure it's not binded in WoW keybinds first!)", Color.Black);
 						Log.Write("To activate/deactivate automatic interrupting F3 (it will interrupt above 80 percent of cast,)", Color.Black);
+						Log.Write("To switch between PYROBLAST and FLAMESTRIKE on HotStreak press F4, default is always PYROBLAST)", Color.Black);
 						Log.Write("To cast Meteor use MOUSE button 3, keep it pressed and cursor where you want to cast Meteor untill it's done.", Color.Black);
 						Log.Write("To cast instant Flamestrike use Tilde button (left from number 1), keep mouse cursor where you want to cast Flamestrike.", Color.Black);
 						Log.Write("OPENER is used on bosses, it requires Fire Blast(3 charges),Phoenix(3 charges),Mirror Image & Combustion off CD", Color.Black);
@@ -191,6 +194,24 @@ namespace PixelMagic.Rotation
                 }
             }
 			
+			if (pyrowatch.ElapsedMilliseconds == 0)
+                    {
+						pyrowatch.Start ();
+						return;
+					}		
+            
+			
+			if (DetectKeyPress.GetKeyState(DetectKeyPress.VK_F4) < 0)
+            {
+                if(pyrowatch.ElapsedMilliseconds > 1000)
+                { 
+				    pyrocast = !pyrocast;
+                    WoW.Speak("Using "+ (pyrocast ? "Pyro" : "Flamestrike"));
+					Log.Write("Using "+ (pyrocast ? "PYROBLAST" : "FLAMESTRIKE"), Color.Red);
+                    pyrowatch.Restart();
+                }
+            }
+			
 			
 			if (autoCDwatch.ElapsedMilliseconds == 0)
                     {
@@ -224,6 +245,7 @@ namespace PixelMagic.Rotation
 				&& flamewatch.ElapsedMilliseconds > 1200)
 			{
 				WoW.CastSpell("Flamestrike");
+				ForcePyro = false;
 				flamewatch.Reset ();
 				Log.Write("Flamestrike CASTED", Color.Black);
 				return;
@@ -343,8 +365,8 @@ namespace PixelMagic.Rotation
 					if (WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && WoW.IsSpellInRange("Fireball") && WoW.PlayerHasBuff("HotStreak") && WoW.CanCast("Pyroblast"))
 					{ 
 						WoW.CastSpell("Pyroblast");
-						Thread.Sleep(100);
-						if (WoW.PlayerSpellCharges("Fire Blast") >= 1) WoW.CastSpell("Fire Blast");
+						/* Thread.Sleep(100);
+						if (WoW.PlayerSpellCharges("Fire Blast") >= 1) WoW.CastSpell("Fire Blast"); */
 						return;
 					} 
 					if (WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && WoW.IsSpellInRange("Fireball") && WoW.PlayerSpellCharges("Fire Blast") >= 1 && WoW.PlayerHasBuff("HeatingUp")
@@ -390,8 +412,10 @@ namespace PixelMagic.Rotation
 					}
 					if (WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && WoW.IsSpellInRange("Fireball") && WoW.CanCast("Pyroblast") && ForcePyro)
 					{ 
-						WoW.CastSpell("Pyroblast");
-						Log.WritePixelMagic("FORCING PYRO....", Color.Red);
+						if (pyrocast) WoW.CastSpell("Pyroblast");
+						else WoW.CastSpell("Flamestrike");
+						//WoW.CastSpell("Pyroblast");
+						Log.WritePixelMagic("FORCING PYRO/FLAMESTRIKE....", Color.Red);
 						ForcePyro = !ForcePyro;
 						if (WoW.PlayerSpellCharges("Fire Blast") >= 1 && UseCooldowns
 							&& ((WoW.SpellCooldownTimeRemaining("Combustion") > 22 && WoW.PlayerSpellCharges("Fire Blast") >= 1)
@@ -414,7 +438,9 @@ namespace PixelMagic.Rotation
 					if (WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && WoW.IsSpellInRange("Fireball") && WoW.PlayerHasBuff("HotStreak") && WoW.CanCast("Pyroblast")
 						&& !ForcePyro)
 					{ 
-						WoW.CastSpell("Pyroblast");
+						if (pyrocast) WoW.CastSpell("Pyroblast");
+						else WoW.CastSpell("Flamestrike");
+						//WoW.CastSpell("Pyroblast");
 						return;	
 					} 
 					/* if (WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && WoW.IsSpellInRange("Fireball") && WoW.CanCast("Mirror Image") 
@@ -485,6 +511,17 @@ namespace PixelMagic.Rotation
 					{
 						ForcePyro = !ForcePyro;
 					}
+					
+					// Legendary Bracers support
+					if (WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && WoW.IsSpellInRange("Fireball") && WoW.CanCast("Pyroblast") && !WoW.WasLastCasted("Pyroblast") 
+						&& !WoW.PlayerIsCasting && !WoW.PlayerHasBuff("Combustion Aura") && WoW.PlayerHasBuff("Legendary Bracers") && WoW.PlayerBuffTimeRemaining("Legendary Bracers") > 4
+						&& !WoW.PlayerHasBuff("Hot Streak!"))
+					{
+						WoW.CastSpell("Pyroblast");
+						return;
+					}
+					// END Legendary Bracers support
+					
 					if (WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && WoW.IsSpellInRange("Fireball") && WoW.PlayerHasBuff("HotStreak") && WoW.CanCast("Pyroblast"))
 					{ 
 						WoW.CastSpell("Pyroblast");
@@ -558,7 +595,9 @@ namespace PixelMagic.Rotation
 					if (WoW.IsInCombat && WoW.HasTarget && WoW.TargetIsEnemy && WoW.IsSpellInRange("Fireball") && WoW.PlayerHasBuff("HotStreak") && WoW.CanCast("Pyroblast")
 						&& !WoW.WasLastCasted("Pyroblast"))
 					{ 
-						WoW.CastSpell("Pyroblast");
+						if (pyrocast) WoW.CastSpell("Pyroblast");
+						else WoW.CastSpell("Flamestrike");
+						//WoW.CastSpell("Pyroblast");
 						return;	
 					} 
 					
@@ -673,6 +712,7 @@ namespace PixelMagic.Rotation
 		public static int VK_F1 = 0x70;
 		public static int VK_F2 = 0x71;
 		public static int VK_F3 = 0x72;
+		public static int VK_F4 = 0x73;
 		
         public static int Z = 0x5A;
         public static int X = 0x58;
@@ -714,6 +754,6 @@ Aura,45438,Ice Block
 Aura,209455,Legendary Bracers
 Aura,32612,Invisibility
 Aura,66,InvisiStart
-Aura,186305,Mount
+Aura,230987,Mount
 Item,5512,Healthstone
 */

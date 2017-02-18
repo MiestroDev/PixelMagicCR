@@ -94,49 +94,88 @@
 		- Rotation creation started.
 		- Rotation built around Backdraft-build.
 
-*/ 
+*/
 
 using System;
-using System.Drawing;
-using System.IO;
-using System.Windows.Forms;
 using System.Diagnostics;
+using System.Drawing;
+using System.Windows.Forms;
 using PixelMagic.Helpers;
 
 namespace PixelMagic.Rotation
 {
     public class DestructionWarlockMixo : CombatRoutine
     {
+        private static bool blazed;
+        private static bool SecondImmolateCasted;
+
+        private static readonly float ConflagCD = Convert.ToSingle(12f/(1 + WoW.HastePercent/100f)*1000f);
+
+        private static readonly float ImmolateCastMS = Convert.ToSingle(1.5f/(1 + WoW.HastePercent/100f)*1000f);
+
+        //Boss bool (easier for testing)
+
+        private static bool boss;
+
+        private static bool IsBLUp;
+        private CheckBox BossToggleBox;
+
+        private readonly Stopwatch CombatTime = new Stopwatch();
+        private readonly Stopwatch ConflagTime = new Stopwatch();
+        private CheckBox DimensionRipperBox;
+        private readonly Stopwatch DimRiftTime = new Stopwatch();
+        private CheckBox GrimoireOfServiceBox;
+        private CheckBox GrimoireOfSupremacyBox;
+        private CheckBox LordOfFlamesBox;
+        private CheckBox ManaTapBox;
 
         private CheckBox OdrBox;
-		private CheckBox SelfhealingBox;
-		private CheckBox BossToggleBox;
+
+        private readonly string readme = "Mixo's Destruction Rotation v1.1" + Environment.NewLine + "" + Environment.NewLine +
+                                         "This rotation is based on Simulationcraft, IcyVeins, and... myself! I've been playing warlock since Vanilla :D" + Environment.NewLine + "" +
+                                         Environment.NewLine + "Information:" + Environment.NewLine +
+                                         "- This rotation uses all three routines, Single-Target (1-target), Cleave (2+ targets), and AoE (5+ targets). Get familiar with switching between them." +
+                                         Environment.NewLine +
+                                         "- You have to apply Havoc manually. This is easiest done with a [@mouseover] macro. Other macros worth considering is [@cursor] Infernal and [@player] Rain of Fire." +
+                                         Environment.NewLine +
+                                         "- Healthstones (if you have any) and Cauterize Master (if you have a pet and you have enabled Automatic Imp Cauterize in the settings) will be used automatically. Unending Resolve will not." +
+                                         Environment.NewLine +
+                                         "- If you enable it in the settings, offensive cooldowns will only be automatically used at bosses. Otherwise they will be used on any target. BE AWARE: Bosses in Karazhan and ToV are not supported atm!" +
+                                         Environment.NewLine + "" + Environment.NewLine + "Recommended Talents:" + Environment.NewLine +
+                                         "-These are talents that are proven to be efficient, but feel free to try any supported talents." + Environment.NewLine + "" + Environment.NewLine +
+                                         "	Single Target	Cleave (2+ Targets)		AoE (5+ Targets)	" + Environment.NewLine + "" + Environment.NewLine +
+                                         "Tier 1:	Backdraft 		| Backdraft		| Backdraft" + Environment.NewLine + "Tier 2:	Reverse Entropy	| Reverse Entropy		| Reverse Entropy" +
+                                         Environment.NewLine + "Tier 3:	Shadowfury*	| Shadowfury*		| Shadowfury*" + Environment.NewLine +
+                                         "Tier 4:	Eradication	| Fire & Brimstone		| Fire & Brimstone" + Environment.NewLine + "Tier 5:	Burning Rush*	| Burning Rush*		| Burning Rush*" +
+                                         Environment.NewLine + "Tier 6:	Grimoire Of Service	| Grimoire Of Sacrifice	| Grimoire Of Sacrifice" + Environment.NewLine +
+                                         "Tier 7:	Soul Conduit	| Wreck Havoc		| Wreck Havoc" + Environment.NewLine + "" + Environment.NewLine +
+                                         "	*(My suggestions. It won't affect rotation if you pick different talents in these tiers)" + Environment.NewLine + "" + Environment.NewLine + "" +
+                                         Environment.NewLine + "Not Supported talents:" + Environment.NewLine + "- Shadowburn" + Environment.NewLine + "- Cataclysm" + Environment.NewLine +
+                                         "- Soul Harvest" + Environment.NewLine + "- Channel Demonfire" + Environment.NewLine + "" + Environment.NewLine + "" + Environment.NewLine +
+                                         "To Do (in order of priority):" + Environment.NewLine + "- Automatic interrupts for PvP." + Environment.NewLine + "- Support for all Talents." +
+                                         Environment.NewLine + "- Support for all Honor Talents." + Environment.NewLine + "- Casting Havoc automatically switches routine to cleave." +
+                                         Environment.NewLine + "- Some kind of opener rotation." + Environment.NewLine + "- Might remove Dimensional Rift recharge-tracking." +
+                                         Environment.NewLine + "	The benefit of having this is small." + Environment.NewLine + "- Perfect Roaring Blaze." + Environment.NewLine +
+                                         "	Roaring Blaze seems only better than Backdraft while below 31 artifact traits and is a pain to optimize so this might not happen." +
+                                         Environment.NewLine + "- Force Havoc, w/ macro. Not really needed tho." + Environment.NewLine +
+                                         "- Probably completly rework this rotation when 7.1.5 arrives. If Destruction Warlocks aren't completly removed that is... :/" + Environment.NewLine +
+                                         "" + Environment.NewLine + "" + Environment.NewLine + "Change Log:" + Environment.NewLine + "" + Environment.NewLine +
+                                         "v1.1 - The Happy New Year Release" + Environment.NewLine + "- Grimoire Of Supremacy support." + Environment.NewLine +
+                                         "- Added toggle for Automatic Imp Cauterize Master." + Environment.NewLine + "- Added toggle for only using cooldowns on bosses." + Environment.NewLine +
+                                         "- Tweeked Immolate refreshing." + Environment.NewLine + "- Use all Dimensional Rift charges available during Bloodlust." + Environment.NewLine + "";
+
         private CheckBox RoaringBlazeBox;
-		private CheckBox ManaTapBox;
-		private CheckBox GrimoireOfSupremacyBox;
-		private CheckBox GrimoireOfServiceBox;
-        private CheckBox LordOfFlamesBox;
-        private CheckBox DimensionRipperBox;
+        private CheckBox SelfhealingBox;
 
-		private static bool blazed;
-		private static bool SecondImmolateCasted;
-
-        private Stopwatch CombatTime = new Stopwatch();
-        private Stopwatch DimRiftTime = new Stopwatch();
-		private Stopwatch ConflagTime = new Stopwatch();
-
-        private static float gcd 
+        private static float gcd
         {
             get
             {
-                if (Convert.ToSingle(1.5f / (1 + (WoW.HastePercent / 100f))) > 1)
+                if (Convert.ToSingle(1.5f/(1 + WoW.HastePercent/100f)) > 1)
                 {
-                    return Convert.ToSingle(1.5f / (1 + (WoW.HastePercent / 100f)));
+                    return Convert.ToSingle(1.5f/(1 + WoW.HastePercent/100f));
                 }
-                else 
-                {
-                    return 1;
-                }
+                return 1;
             }
         }
 
@@ -146,18 +185,11 @@ namespace PixelMagic.Rotation
             {
                 if (WoW.PlayerHasBuff("Backdraft"))
                 {
-                    return Convert.ToSingle((2.5f / (1 + (WoW.HastePercent / 100f))) * 0.7f);
+                    return Convert.ToSingle(2.5f/(1 + WoW.HastePercent/100f)*0.7f);
                 }
-                else 
-                {
-                    return Convert.ToSingle(2.5f / (1 + (WoW.HastePercent / 100f)));
-                }
+                return Convert.ToSingle(2.5f/(1 + WoW.HastePercent/100f));
             }
         }
-
-		private static float ConflagCD = Convert.ToSingle((12f / (1 + (WoW.HastePercent / 100f))) * 1000f);
-
-		private static float ImmolateCastMS = Convert.ToSingle((1.5f / (1 + (WoW.HastePercent / 100f))) * 1000f);
 
         private static bool Odr
         {
@@ -250,67 +282,10 @@ namespace PixelMagic.Rotation
         }
 
         public override Form SettingsForm { get; set; }
-        
+
         public override string Name => "Destruction Warlock";
 
         public override string Class => "Warlock";
-
-		private string readme = "Mixo's Destruction Rotation v1.1" + Environment.NewLine +
-			""+ Environment.NewLine +	
-			"This rotation is based on Simulationcraft, IcyVeins, and... myself! I've been playing warlock since Vanilla :D" + Environment.NewLine +
-			"" + Environment.NewLine +
-			"Information:" + Environment.NewLine +
-			"- This rotation uses all three routines, Single-Target (1-target), Cleave (2+ targets), and AoE (5+ targets). Get familiar with switching between them." + Environment.NewLine +
-			"- You have to apply Havoc manually. This is easiest done with a [@mouseover] macro. Other macros worth considering is [@cursor] Infernal and [@player] Rain of Fire." + Environment.NewLine +
-			"- Healthstones (if you have any) and Cauterize Master (if you have a pet and you have enabled Automatic Imp Cauterize in the settings) will be used automatically. Unending Resolve will not." + Environment.NewLine +
-			"- If you enable it in the settings, offensive cooldowns will only be automatically used at bosses. Otherwise they will be used on any target. BE AWARE: Bosses in Karazhan and ToV are not supported atm!" + Environment.NewLine +
-			"" + Environment.NewLine +
-			"Recommended Talents:" + Environment.NewLine +
-			"-These are talents that are proven to be efficient, but feel free to try any supported talents." + Environment.NewLine +
-			"" + Environment.NewLine +
-			"	Single Target	Cleave (2+ Targets)		AoE (5+ Targets)	" + Environment.NewLine +
-			"" + Environment.NewLine +
-			"Tier 1:	Backdraft 		| Backdraft		| Backdraft" + Environment.NewLine +
-			"Tier 2:	Reverse Entropy	| Reverse Entropy		| Reverse Entropy" + Environment.NewLine +
-			"Tier 3:	Shadowfury*	| Shadowfury*		| Shadowfury*" + Environment.NewLine +
-			"Tier 4:	Eradication	| Fire & Brimstone		| Fire & Brimstone" + Environment.NewLine +
-			"Tier 5:	Burning Rush*	| Burning Rush*		| Burning Rush*" + Environment.NewLine +
-			"Tier 6:	Grimoire Of Service	| Grimoire Of Sacrifice	| Grimoire Of Sacrifice" + Environment.NewLine +
-			"Tier 7:	Soul Conduit	| Wreck Havoc		| Wreck Havoc" + Environment.NewLine +
-			"" + Environment.NewLine +
-			"	*(My suggestions. It won't affect rotation if you pick different talents in these tiers)" + Environment.NewLine +
-			"" + Environment.NewLine +
-			"" + Environment.NewLine +
-			"Not Supported talents:" + Environment.NewLine +
-			"- Shadowburn" + Environment.NewLine +
-			"- Cataclysm" + Environment.NewLine +
-			"- Soul Harvest" + Environment.NewLine +
-			"- Channel Demonfire" + Environment.NewLine +
-			"" + Environment.NewLine +
-			"" + Environment.NewLine +
-			"To Do (in order of priority):" + Environment.NewLine +
-			"- Automatic interrupts for PvP." + Environment.NewLine +
-			"- Support for all Talents." + Environment.NewLine +
-			"- Support for all Honor Talents." + Environment.NewLine +
-			"- Casting Havoc automatically switches routine to cleave." + Environment.NewLine +
-			"- Some kind of opener rotation." + Environment.NewLine +
-			"- Might remove Dimensional Rift recharge-tracking." + Environment.NewLine +
-			"	The benefit of having this is small." + Environment.NewLine +
-			"- Perfect Roaring Blaze." + Environment.NewLine +
-			"	Roaring Blaze seems only better than Backdraft while below 31 artifact traits and is a pain to optimize so this might not happen." + Environment.NewLine +
-			"- Force Havoc, w/ macro. Not really needed tho." + Environment.NewLine +
-			"- Probably completly rework this rotation when 7.1.5 arrives. If Destruction Warlocks aren't completly removed that is... :/" + Environment.NewLine +
-			"" + Environment.NewLine +
-			"" + Environment.NewLine +
-			"Change Log:" + Environment.NewLine +
-			"" + Environment.NewLine +
-			"v1.1 - The Happy New Year Release" + Environment.NewLine +
-			"- Grimoire Of Supremacy support." + Environment.NewLine +
-			"- Added toggle for Automatic Imp Cauterize Master." + Environment.NewLine +
-			"- Added toggle for only using cooldowns on bosses." + Environment.NewLine +
-			"- Tweeked Immolate refreshing." + Environment.NewLine +
-			"- Use all Dimensional Rift charges available during Bloodlust." + Environment.NewLine +						
-			"";
 
         public override void Initialize()
         {
@@ -318,7 +293,7 @@ namespace PixelMagic.Rotation
             Log.Write("WELCOME TO MIXO's DESTRO ROTATION!", Color.DarkViolet);
             Log.Write("- Version: 1.1 -", Color.DarkViolet);
             Log.Write("", Color.DarkViolet);
-            Log.Write("Don't forget to change the Rotation settings based on your preferences.", Color.DarkViolet);            
+            Log.Write("Don't forget to change the Rotation settings based on your preferences.", Color.DarkViolet);
             Log.Write("", Color.DarkViolet);
             Log.Write("And please take a look at the Read Me to further understand this rotation ", Color.DarkViolet);
             Log.Write(" and the choices behind it.", Color.DarkViolet);
@@ -327,24 +302,17 @@ namespace PixelMagic.Rotation
             Log.Write("Tag it with @[EU] Mixo to notify me. :)", Color.DarkViolet);
             Log.Write("-----", Color.DarkViolet);
             WoW.Speak("Mix Oh! Destruction?!");
-            
-            SettingsForm = new Form
-            {
-                Text = "Mixo's Destro Warlock Rotation - Settings",
-                StartPosition = FormStartPosition.CenterScreen,
-				Width = 480,
-                Height = 318,
-                ShowIcon = false
-            };
+
+            SettingsForm = new Form {Text = "Mixo's Destro Warlock Rotation - Settings", StartPosition = FormStartPosition.CenterScreen, Width = 480, Height = 318, ShowIcon = false};
 
             var lblLegendaryText = new Label {Text = "Legendary", Size = new Size(115, 13), Left = 15, Top = 15};
-			lblLegendaryText.ForeColor = Color.DarkOrange;
+            lblLegendaryText.ForeColor = Color.DarkOrange;
             SettingsForm.Controls.Add(lblLegendaryText);
             var lblSettingsText = new Label {Text = "Settings", Size = new Size(115, 13), Left = 15, Top = 87};
-			lblSettingsText.ForeColor = Color.DarkGreen;
+            lblSettingsText.ForeColor = Color.DarkGreen;
             SettingsForm.Controls.Add(lblSettingsText);
             var lblCooldownzText = new Label {Text = "Talents/Traits", Size = new Size(115, 13), Left = 260, Top = 15};
-			lblCooldownzText.ForeColor = Color.DarkViolet;
+            lblCooldownzText.ForeColor = Color.DarkViolet;
             SettingsForm.Controls.Add(lblCooldownzText);
 
             var lblTextBox = new Label
@@ -409,43 +377,42 @@ namespace PixelMagic.Rotation
             SettingsForm.Controls.Add(DimensionRipperBox);
 
             OdrBox.Checked = Odr;
-			SelfhealingBox.Checked = Selfhealing;
-			BossToggleBox.Checked = BossToggle;
+            SelfhealingBox.Checked = Selfhealing;
+            BossToggleBox.Checked = BossToggle;
             RoaringBlazeBox.Checked = RoaringBlaze;
-			ManaTapBox.Checked = ManaTap;
-			GrimoireOfSupremacyBox.Checked = GrimoireOfSupremacy;
-			GrimoireOfServiceBox.Checked = GrimoireOfService;
-			LordOfFlamesBox.Checked = LordOfFlames;
+            ManaTapBox.Checked = ManaTap;
+            GrimoireOfSupremacyBox.Checked = GrimoireOfSupremacy;
+            GrimoireOfServiceBox.Checked = GrimoireOfService;
+            LordOfFlamesBox.Checked = LordOfFlames;
             DimensionRipperBox.Checked = DimensionRipper;
 
-            
+
             cmdSave.Click += CmdSave_Click;
             cmdReadme.Click += CmdReadme_Click;
             OdrBox.CheckedChanged += Odr_Click;
-			SelfhealingBox.CheckedChanged += Selfhealing_Click;
-			BossToggleBox.CheckedChanged += BossToggle_Click;
+            SelfhealingBox.CheckedChanged += Selfhealing_Click;
+            BossToggleBox.CheckedChanged += BossToggle_Click;
             RoaringBlazeBox.CheckedChanged += RoaringBlaze_Click;
-			ManaTapBox.CheckedChanged += ManaTap_Click;
-			GrimoireOfSupremacyBox.CheckedChanged += GrimoireOfSupremacy_Click;
-			GrimoireOfServiceBox.CheckedChanged += GrimoireOfService_Click;
-			LordOfFlamesBox.CheckedChanged += LordOfFlames_Click;
+            ManaTapBox.CheckedChanged += ManaTap_Click;
+            GrimoireOfSupremacyBox.CheckedChanged += GrimoireOfSupremacy_Click;
+            GrimoireOfServiceBox.CheckedChanged += GrimoireOfService_Click;
+            LordOfFlamesBox.CheckedChanged += LordOfFlames_Click;
             DimensionRipperBox.CheckedChanged += DimensionRipper_Click;
 
 
             SettingsForm.Controls.Add(cmdSave);
             SettingsForm.Controls.Add(cmdReadme);
             lblOdrText.BringToFront();
-			lblBossToggleText.BringToFront();
-			lblSelfhealingText.BringToFront();
+            lblBossToggleText.BringToFront();
+            lblSelfhealingText.BringToFront();
             lblRoaringBlazeText.BringToFront();
-			lblManaTapText.BringToFront();
-			lblGrimoireOfSupremacyText.BringToFront();
-			lblGrimoireOfServiceText.BringToFront();
-			lblLordOfFlamesText.BringToFront();
+            lblManaTapText.BringToFront();
+            lblGrimoireOfSupremacyText.BringToFront();
+            lblGrimoireOfServiceText.BringToFront();
+            lblLordOfFlamesText.BringToFront();
             lblDimensionRipperText.BringToFront();
-
         }
-        
+
         private void CmdReadme_Click(object sender, EventArgs e)
         {
             MessageBox.Show(readme, "PixelMagic", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -454,13 +421,13 @@ namespace PixelMagic.Rotation
         private void CmdSave_Click(object sender, EventArgs e)
         {
             Odr = OdrBox.Checked;
-			Selfhealing = SelfhealingBox.Checked;
-			BossToggle = BossToggleBox.Checked;
+            Selfhealing = SelfhealingBox.Checked;
+            BossToggle = BossToggleBox.Checked;
             RoaringBlaze = RoaringBlazeBox.Checked;
-			ManaTap = ManaTapBox.Checked;
-			GrimoireOfSupremacy = GrimoireOfSupremacyBox.Checked;
-			GrimoireOfService = GrimoireOfServiceBox.Checked;
-			LordOfFlames = LordOfFlamesBox.Checked;
+            ManaTap = ManaTapBox.Checked;
+            GrimoireOfSupremacy = GrimoireOfSupremacyBox.Checked;
+            GrimoireOfService = GrimoireOfServiceBox.Checked;
+            LordOfFlames = LordOfFlamesBox.Checked;
             DimensionRipper = DimensionRipperBox.Checked;
             MessageBox.Show("Settings saved.", "PixelMagic", MessageBoxButtons.OK, MessageBoxIcon.Information);
             SettingsForm.Close();
@@ -517,51 +484,40 @@ namespace PixelMagic.Rotation
         {
         }
 
-		//Boss bool (easier for testing)
+        private static bool IsTargetBoss()
+        {
+            if (BossToggle)
+            {
+                if (!WoW.HasTarget && WoW.IsInCombat)
+                {
+                    boss = false;
+                    return boss;
+                }
+                if (WoW.HasTarget && WoW.IsInCombat)
+                {
+                    boss = true;
+                    return boss;
+                }
+                return boss;
+            }
+            boss = true;
+            return boss;
+        }
 
-		private static bool boss;
-		private static bool IsTargetBoss()
-		{
-			if(BossToggle)
-			{
-				if(!WoW.HasTarget && WoW.IsInCombat)
-				{
-					boss = false;
-					return boss;
-				}
-				if(WoW.HasTarget && WoW.IsInCombat)
-				{
-					boss = true;
-					return boss;
-				}
-				return boss;
-			}
-			else
-			{
-				boss = true;
-				return boss;
-			}
-		}
-
-		private static bool IsBLUp;
-		private static bool isBLUp()
-		{
-			if(WoW.PlayerHasBuff("Bloodlust") || WoW.PlayerHasBuff("TimeWarp") || WoW.PlayerHasBuff("Heroism"))
-			{
-				IsBLUp = true;
-				return IsBLUp;
-			}
-			else
-			{
-				IsBLUp = false;
-				return IsBLUp;
-			}
-		}
+        private static bool isBLUp()
+        {
+            if (WoW.PlayerHasBuff("Bloodlust") || WoW.PlayerHasBuff("TimeWarp") || WoW.PlayerHasBuff("Heroism"))
+            {
+                IsBLUp = true;
+                return IsBLUp;
+            }
+            IsBLUp = false;
+            return IsBLUp;
+        }
 
         public override void Pulse()
         {
-
-			//Combat Time
+            //Combat Time
             if (CombatTime.IsRunning && !WoW.IsInCombat)
             {
                 CombatTime.Reset();
@@ -571,786 +527,798 @@ namespace PixelMagic.Rotation
                 CombatTime.Start();
             }
 
-			//Dimensional Rift Recharge-Time (EXPERIMENTAL)
-		    if (DimRiftTime.IsRunning && WoW.PlayerSpellCharges("DimensionalRift") == 3)
+            //Dimensional Rift Recharge-Time (EXPERIMENTAL)
+            if (DimRiftTime.IsRunning && WoW.PlayerSpellCharges("DimensionalRift") == 3)
             {
                 DimRiftTime.Reset();
             }
             if (DimRiftTime.ElapsedMilliseconds >= 45000)
             {
                 DimRiftTime.Restart();
-            } 
+            }
             if (!DimRiftTime.IsRunning && WoW.WasLastCasted("DimensionalRift") && WoW.PlayerSpellCharges("DimensionalRift") == 2)
             {
                 DimRiftTime.Start();
             }
 
-			//Conflagrate Recharge-Time (EXPERIMENTAL)
-		    if (ConflagTime.IsRunning && WoW.PlayerSpellCharges("Conflagrate") == 2)
+            //Conflagrate Recharge-Time (EXPERIMENTAL)
+            if (ConflagTime.IsRunning && WoW.PlayerSpellCharges("Conflagrate") == 2)
             {
                 ConflagTime.Reset();
             }
             if (ConflagTime.ElapsedMilliseconds >= ConflagCD)
             {
                 ConflagTime.Restart();
-            } 
+            }
             if (!ConflagTime.IsRunning && WoW.WasLastCasted("Conflagrate") && WoW.PlayerSpellCharges("Conflagrate") == 1)
             {
                 ConflagTime.Start();
             }
 
-			IsTargetBoss();
-			isBLUp();
+            IsTargetBoss();
+            isBLUp();
 
             // Single Target Rotation
             if (combatRoutine.Type == RotationType.SingleTarget)
             {
+                if (WoW.HasTarget && WoW.TargetIsEnemy && WoW.IsInCombat && !WoW.PlayerIsCasting && !WoW.PlayerIsChanneling && WoW.ItemCount("Healthstone") >= 1 &&
+                    !WoW.ItemOnCooldown("Healthstone") && WoW.HealthPercent < 30)
+                {
+                    WoW.CastSpell("HealthstoneKeybind");
+                    return;
+                }
 
-				if(WoW.HasTarget && WoW.TargetIsEnemy && WoW.IsInCombat && !WoW.PlayerIsCasting && !WoW.PlayerIsChanneling && WoW.ItemCount("Healthstone") >= 1 && !WoW.ItemOnCooldown("Healthstone") && WoW.HealthPercent < 30)
-				{
-					WoW.CastSpell("HealthstoneKeybind");
-					return;
-				}
+                if (WoW.HasTarget && WoW.TargetIsEnemy && WoW.IsInCombat && WoW.CanCast("CauterizeMaster") && WoW.HealthPercent < 100 && WoW.HasPet && !GrimoireOfSupremacy && Selfhealing)
+                {
+                    WoW.CastSpell("CauterizeMaster");
+                    return;
+                }
 
-				if(WoW.HasTarget && WoW.TargetIsEnemy && WoW.IsInCombat && WoW.CanCast("CauterizeMaster") && WoW.HealthPercent < 100 && WoW.HasPet && !GrimoireOfSupremacy && Selfhealing)
-				{
-					WoW.CastSpell("CauterizeMaster");
-					return;
-				}
-
-            	 //Log.Write("Time: "+ChaosBoltCast, Color.Red);
+                //Log.Write("Time: "+ChaosBoltCast, Color.Red);
                 // Normal Rotation (if Moving)
                 if (WoW.HasTarget && WoW.TargetIsEnemy && WoW.IsInCombat && !WoW.PlayerIsCasting && !WoW.PlayerIsChanneling && WoW.IsMoving && !WoW.PlayerHasBuff("Norgannon"))
                 {
-
                     //Dimensional Rift (if 3 charges)
-					if(WoW.CanCast("DimensionalRift") && WoW.IsSpellInRange("Immolate") && WoW.PlayerSpellCharges("DimensionalRift") == 3)
-					{
-						WoW.CastSpell("DimensionalRift");
-						return;
-					}
+                    if (WoW.CanCast("DimensionalRift") && WoW.IsSpellInRange("Immolate") && WoW.PlayerSpellCharges("DimensionalRift") == 3)
+                    {
+                        WoW.CastSpell("DimensionalRift");
+                        return;
+                    }
 
                     //Conflagrate (Roaring Blaze not applied)
-					if(WoW.CanCast("Conflagrate") && RoaringBlaze && WoW.TargetDebuffTimeRemaining("Immolate") > 18 && (WoW.PlayerSpellCharges("Conflagrate") == 2 || 
-					(WoW.PlayerSpellCharges("Conflagrate") == 1 && ConflagTime.ElapsedMilliseconds > ConflagCD-(gcd*1000))) && SecondImmolateCasted && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("Conflagrate");
-						blazed = true;
-						return;
-					}
+                    if (WoW.CanCast("Conflagrate") && RoaringBlaze && WoW.TargetDebuffTimeRemaining("Immolate") > 18 &&
+                        (WoW.PlayerSpellCharges("Conflagrate") == 2 || (WoW.PlayerSpellCharges("Conflagrate") == 1 && ConflagTime.ElapsedMilliseconds > ConflagCD - gcd*1000)) &&
+                        SecondImmolateCasted && WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("Conflagrate");
+                        blazed = true;
+                        return;
+                    }
 
                     //Conflagrate (Roaring Blaze applied)
-					if(WoW.CanCast("Conflagrate") && RoaringBlaze && blazed && SecondImmolateCasted && WoW.TargetDebuffTimeRemaining("Immolate") > 5 && WoW.CurrentSoulShards < 5 && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("Conflagrate");
-						return;
-					}
+                    if (WoW.CanCast("Conflagrate") && RoaringBlaze && blazed && SecondImmolateCasted && WoW.TargetDebuffTimeRemaining("Immolate") > 5 && WoW.CurrentSoulShards < 5 &&
+                        WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("Conflagrate");
+                        return;
+                    }
 
                     //Conflagrate (Conflagration Of Chaos is about to expire)
-					if(WoW.CanCast("Conflagrate") && !RoaringBlaze && !WoW.PlayerHasBuff("Backdraft") && WoW.PlayerBuffTimeRemaining("ConflagrationOfChaos") <= ChaosBoltCast && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("Conflagrate");
-						return;
-					}
+                    if (WoW.CanCast("Conflagrate") && !RoaringBlaze && !WoW.PlayerHasBuff("Backdraft") && WoW.PlayerBuffTimeRemaining("ConflagrationOfChaos") <= ChaosBoltCast &&
+                        WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("Conflagrate");
+                        return;
+                    }
 
                     //Conflagrate (w/ special conditions)
-					if(WoW.CanCast("Conflagrate") && !RoaringBlaze && !WoW.PlayerHasBuff("Backdraft") && 
-					((WoW.PlayerSpellCharges("Conflagrate") == 1 && WoW.SpellCooldownTimeRemaining("Conflagrate") < ChaosBoltCast) || 
-					WoW.PlayerSpellCharges("Conflagrate") == 2) && WoW.CurrentSoulShards < 5 && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("Conflagrate");
-						return;
-					}
+                    if (WoW.CanCast("Conflagrate") && !RoaringBlaze && !WoW.PlayerHasBuff("Backdraft") &&
+                        ((WoW.PlayerSpellCharges("Conflagrate") == 1 && WoW.SpellCooldownTimeRemaining("Conflagrate") < ChaosBoltCast) || WoW.PlayerSpellCharges("Conflagrate") == 2) &&
+                        WoW.CurrentSoulShards < 5 && WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("Conflagrate");
+                        return;
+                    }
 
-					// Service Pet
-					if(WoW.CanCast("ServiceImp") && GrimoireOfService && WoW.CurrentSoulShards >= 1 && boss && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("ServiceImp");
-						return;
-					}
+                    // Service Pet
+                    if (WoW.CanCast("ServiceImp") && GrimoireOfService && WoW.CurrentSoulShards >= 1 && boss && WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("ServiceImp");
+                        return;
+                    }
 
-					// Doomguard
-					if(WoW.CanCast("Doomguard") && WoW.PlayerHasDebuff("LordOfFlames") && WoW.CurrentSoulShards >= 1 && boss && WoW.IsSpellInRange("Immolate") && !GrimoireOfSupremacy)
-					{
-						WoW.CastSpell("Doomguard");
-						return;
-					}					
+                    // Doomguard
+                    if (WoW.CanCast("Doomguard") && WoW.PlayerHasDebuff("LordOfFlames") && WoW.CurrentSoulShards >= 1 && boss && WoW.IsSpellInRange("Immolate") && !GrimoireOfSupremacy)
+                    {
+                        WoW.CastSpell("Doomguard");
+                        return;
+                    }
 
-					//Havoc (if Odr legendary)
-					if(WoW.CanCast("Havoc") && Odr && (!WoW.TargetHasDebuff("Havoc") || WoW.TargetDebuffTimeRemaining("Havoc") < gcd) && boss)
-					{
-						WoW.CastSpell("Havoc");
-						return;
-					}
+                    //Havoc (if Odr legendary)
+                    if (WoW.CanCast("Havoc") && Odr && (!WoW.TargetHasDebuff("Havoc") || WoW.TargetDebuffTimeRemaining("Havoc") < gcd) && boss)
+                    {
+                        WoW.CastSpell("Havoc");
+                        return;
+                    }
 
                     //Dimensional Rift (all while moving to sustain dps)
-					if(WoW.CanCast("DimensionalRift") && WoW.IsSpellInRange("Immolate") && boss)
-					{
-						WoW.CastSpell("DimensionalRift");
-						return;
-					}
+                    if (WoW.CanCast("DimensionalRift") && WoW.IsSpellInRange("Immolate") && boss)
+                    {
+                        WoW.CastSpell("DimensionalRift");
+                        return;
+                    }
 
                     //Mana Tap
-					if(WoW.CanCast("ManaTap") && ManaTap && (!WoW.PlayerHasBuff("ManaTap") || (WoW.PlayerBuffTimeRemaining("ManaTap") < 6 && 
-					(WoW.Mana < 20 || WoW.PlayerBuffTimeRemaining("ManaTap") < ChaosBoltCast))))
-					{
-						WoW.CastSpell("ManaTap");
-						return;
-					}
+                    if (WoW.CanCast("ManaTap") && ManaTap &&
+                        (!WoW.PlayerHasBuff("ManaTap") || (WoW.PlayerBuffTimeRemaining("ManaTap") < 6 && (WoW.Mana < 20 || WoW.PlayerBuffTimeRemaining("ManaTap") < ChaosBoltCast))))
+                    {
+                        WoW.CastSpell("ManaTap");
+                        return;
+                    }
 
                     //Conflagrate
-					if(WoW.CanCast("Conflagrate") && !RoaringBlaze && !WoW.PlayerHasBuff("Backdraft") && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("Conflagrate");
-						return;
-					}
+                    if (WoW.CanCast("Conflagrate") && !RoaringBlaze && !WoW.PlayerHasBuff("Backdraft") && WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("Conflagrate");
+                        return;
+                    }
 
                     //Life Tap
-					if(WoW.CanCast("LifeTap") && ManaTap && WoW.Mana <= 10)
-					{
-						WoW.CastSpell("LifeTap");
-						return;
-					}
+                    if (WoW.CanCast("LifeTap") && ManaTap && WoW.Mana <= 10)
+                    {
+                        WoW.CastSpell("LifeTap");
+                        return;
+                    }
 
                     //Life Tap
-					if(WoW.CanCast("LifeTap") && WoW.Mana <= 70)
-					{
-						WoW.CastSpell("LifeTap");
-						return;
-					}
-
+                    if (WoW.CanCast("LifeTap") && WoW.Mana <= 70)
+                    {
+                        WoW.CastSpell("LifeTap");
+                        return;
+                    }
                 }
 
                 // Normal Rotation (if NOT Moving [or Norgannon])
                 if (WoW.HasTarget && WoW.TargetIsEnemy && WoW.IsInCombat && !WoW.PlayerIsCasting && !WoW.PlayerIsChanneling && (!WoW.IsMoving || WoW.PlayerHasBuff("Norgannon")))
                 {
-
                     //Dimensional Rift (if 3 charges)
-					if(WoW.CanCast("DimensionalRift") && WoW.IsSpellInRange("Immolate") && WoW.PlayerSpellCharges("DimensionalRift") == 3)
-					{
-						WoW.CastSpell("DimensionalRift");
-						return;
-					}
+                    if (WoW.CanCast("DimensionalRift") && WoW.IsSpellInRange("Immolate") && WoW.PlayerSpellCharges("DimensionalRift") == 3)
+                    {
+                        WoW.CastSpell("DimensionalRift");
+                        return;
+                    }
 
                     //Immolate
-					if(WoW.CanCast("Immolate") && (!WoW.TargetHasDebuff("Immolate") || WoW.TargetDebuffTimeRemaining("Immolate") <= 3) && WoW.LastSpell != ("Immolate") && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("Immolate");
-						blazed = false;
-						SecondImmolateCasted = false;
-						return;
-					}
+                    if (WoW.CanCast("Immolate") && (!WoW.TargetHasDebuff("Immolate") || WoW.TargetDebuffTimeRemaining("Immolate") <= 3) && WoW.LastSpell != "Immolate" &&
+                        WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("Immolate");
+                        blazed = false;
+                        SecondImmolateCasted = false;
+                        return;
+                    }
 
                     //Immolate (Duration maxed with Roaring Blaze)
-					if(WoW.CanCast("Immolate") && RoaringBlaze && !blazed && WoW.TargetDebuffTimeRemaining("Immolate") <= 18 && (WoW.PlayerSpellCharges("Conflagrate") == 2 || 
-					(WoW.PlayerSpellCharges("Conflagrate") >= 1 && ConflagTime.ElapsedMilliseconds > ConflagCD-(ImmolateCastMS+(gcd*1000)))) && !SecondImmolateCasted && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("Immolate");
-						SecondImmolateCasted = true;
-						return;
-					}
+                    if (WoW.CanCast("Immolate") && RoaringBlaze && !blazed && WoW.TargetDebuffTimeRemaining("Immolate") <= 18 &&
+                        (WoW.PlayerSpellCharges("Conflagrate") == 2 || (WoW.PlayerSpellCharges("Conflagrate") >= 1 && ConflagTime.ElapsedMilliseconds > ConflagCD - (ImmolateCastMS + gcd*1000))) &&
+                        !SecondImmolateCasted && WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("Immolate");
+                        SecondImmolateCasted = true;
+                        return;
+                    }
 
                     //Conflagrate (Roaring Blaze not applied)
-					if(WoW.CanCast("Conflagrate") && RoaringBlaze && WoW.TargetDebuffTimeRemaining("Immolate") > 18 && (WoW.PlayerSpellCharges("Conflagrate") == 2 || 
-					(WoW.PlayerSpellCharges("Conflagrate") == 1 && ConflagTime.ElapsedMilliseconds > ConflagCD-(gcd*1000))) && SecondImmolateCasted && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("Conflagrate");
-						blazed = true;
-						return;
-					}
+                    if (WoW.CanCast("Conflagrate") && RoaringBlaze && WoW.TargetDebuffTimeRemaining("Immolate") > 18 &&
+                        (WoW.PlayerSpellCharges("Conflagrate") == 2 || (WoW.PlayerSpellCharges("Conflagrate") == 1 && ConflagTime.ElapsedMilliseconds > ConflagCD - gcd*1000)) &&
+                        SecondImmolateCasted && WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("Conflagrate");
+                        blazed = true;
+                        return;
+                    }
 
                     //Conflagrate (Roaring Blaze applied)
-					if(WoW.CanCast("Conflagrate") && RoaringBlaze && blazed && SecondImmolateCasted && WoW.TargetDebuffTimeRemaining("Immolate") > 5 && WoW.CurrentSoulShards < 5 && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("Conflagrate");
-						return;
-					}
+                    if (WoW.CanCast("Conflagrate") && RoaringBlaze && blazed && SecondImmolateCasted && WoW.TargetDebuffTimeRemaining("Immolate") > 5 && WoW.CurrentSoulShards < 5 &&
+                        WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("Conflagrate");
+                        return;
+                    }
 
                     //Conflagrate (Conflagration Of Chaos is about to expire)
-					if(WoW.CanCast("Conflagrate") && !RoaringBlaze && !WoW.PlayerHasBuff("Backdraft") && WoW.PlayerBuffTimeRemaining("ConflagrationOfChaos") <= ChaosBoltCast && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("Conflagrate");
-						return;
-					}
+                    if (WoW.CanCast("Conflagrate") && !RoaringBlaze && !WoW.PlayerHasBuff("Backdraft") && WoW.PlayerBuffTimeRemaining("ConflagrationOfChaos") <= ChaosBoltCast &&
+                        WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("Conflagrate");
+                        return;
+                    }
 
                     //Conflagrate (w/ special conditions)
-					if(WoW.CanCast("Conflagrate") && !RoaringBlaze && !WoW.PlayerHasBuff("Backdraft") && 
-					((WoW.PlayerSpellCharges("Conflagrate") == 1 && WoW.SpellCooldownTimeRemaining("Conflagrate") < ChaosBoltCast) || 
-					WoW.PlayerSpellCharges("Conflagrate") == 2) && WoW.CurrentSoulShards < 5 && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("Conflagrate");
-						return;
-					}
+                    if (WoW.CanCast("Conflagrate") && !RoaringBlaze && !WoW.PlayerHasBuff("Backdraft") &&
+                        ((WoW.PlayerSpellCharges("Conflagrate") == 1 && WoW.SpellCooldownTimeRemaining("Conflagrate") < ChaosBoltCast) || WoW.PlayerSpellCharges("Conflagrate") == 2) &&
+                        WoW.CurrentSoulShards < 5 && WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("Conflagrate");
+                        return;
+                    }
 
-					// Service Pet
-					if(WoW.CanCast("ServiceImp") && GrimoireOfService && WoW.CurrentSoulShards >= 1 && boss && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("ServiceImp");
-						return;
-					}
+                    // Service Pet
+                    if (WoW.CanCast("ServiceImp") && GrimoireOfService && WoW.CurrentSoulShards >= 1 && boss && WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("ServiceImp");
+                        return;
+                    }
 
-					// Infernal (make a @cursor macro)
-					if(WoW.CanCast("Infernal") && LordOfFlames && !WoW.PlayerHasDebuff("LordOfFlames") && WoW.CurrentSoulShards >= 1 && boss && WoW.IsSpellInRange("Immolate") && !GrimoireOfSupremacy)
-					{
-						WoW.CastSpell("Infernal");
-						return;
-					}
+                    // Infernal (make a @cursor macro)
+                    if (WoW.CanCast("Infernal") && LordOfFlames && !WoW.PlayerHasDebuff("LordOfFlames") && WoW.CurrentSoulShards >= 1 && boss && WoW.IsSpellInRange("Immolate") &&
+                        !GrimoireOfSupremacy)
+                    {
+                        WoW.CastSpell("Infernal");
+                        return;
+                    }
 
-					// Doomguard
-					if(WoW.CanCast("Doomguard") && (WoW.PlayerHasDebuff("LordOfFlames") || !LordOfFlames) && WoW.CurrentSoulShards >= 1 && boss && WoW.IsSpellInRange("Immolate") && !GrimoireOfSupremacy)
-					{
-						WoW.CastSpell("Doomguard");
-						return;
-					}
+                    // Doomguard
+                    if (WoW.CanCast("Doomguard") && (WoW.PlayerHasDebuff("LordOfFlames") || !LordOfFlames) && WoW.CurrentSoulShards >= 1 && boss && WoW.IsSpellInRange("Immolate") &&
+                        !GrimoireOfSupremacy)
+                    {
+                        WoW.CastSpell("Doomguard");
+                        return;
+                    }
 
                     //Chaos Bolt (if about to cap Soul Shards or has Backdraft)
-					if(WoW.CanCast("ChaosBolt") && WoW.CurrentSoulShards >= 2 && (WoW.CurrentSoulShards > 3 || WoW.PlayerHasBuff("Backdraft")) && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("ChaosBolt");
-						return;
-					}
+                    if (WoW.CanCast("ChaosBolt") && WoW.CurrentSoulShards >= 2 && (WoW.CurrentSoulShards > 3 || WoW.PlayerHasBuff("Backdraft")) && WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("ChaosBolt");
+                        return;
+                    }
 
                     //Incinerate (if Backdraft)
-					if(WoW.CanCast("Incinerate") && WoW.PlayerHasBuff("Backdraft") && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("Incinerate");
-						return;
-					}
+                    if (WoW.CanCast("Incinerate") && WoW.PlayerHasBuff("Backdraft") && WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("Incinerate");
+                        return;
+                    }
 
-					//Havoc (if Odr legendary)
-					if(WoW.CanCast("Havoc") && Odr && (!WoW.TargetHasDebuff("Havoc") || WoW.TargetDebuffTimeRemaining("Havoc") < gcd) && boss)
-					{
-						WoW.CastSpell("Havoc");
-						return;
-					}
+                    //Havoc (if Odr legendary)
+                    if (WoW.CanCast("Havoc") && Odr && (!WoW.TargetHasDebuff("Havoc") || WoW.TargetDebuffTimeRemaining("Havoc") < gcd) && boss)
+                    {
+                        WoW.CastSpell("Havoc");
+                        return;
+                    }
 
                     //Dimensional Rift (to get to designated charges)
-					if(WoW.CanCast("DimensionalRift") && ((WoW.PlayerSpellCharges("DimensionalRift") > 1 && DimensionRipper) || WoW.TargetHealthPercent < 30 || IsBLUp) && boss && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("DimensionalRift");
-						return;
-					}
+                    if (WoW.CanCast("DimensionalRift") && ((WoW.PlayerSpellCharges("DimensionalRift") > 1 && DimensionRipper) || WoW.TargetHealthPercent < 30 || IsBLUp) && boss &&
+                        WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("DimensionalRift");
+                        return;
+                    }
 
                     //Dimensional Rift (only to avoid capping charges, we want to save charges for when moving. But casting everything when boss is low hp or during BL.)
-					if(WoW.CanCast("DimensionalRift") && DimRiftTime.ElapsedMilliseconds > 40000 && ((WoW.PlayerSpellCharges("DimensionalRift") == 2 && !DimensionRipper) || 
-					(WoW.PlayerSpellCharges("DimensionalRift") == 1 && DimensionRipper)) && WoW.IsSpellInRange("Immolate") && boss)
-					{
-						WoW.CastSpell("DimensionalRift");
-						return;
-					}
+                    if (WoW.CanCast("DimensionalRift") && DimRiftTime.ElapsedMilliseconds > 40000 &&
+                        ((WoW.PlayerSpellCharges("DimensionalRift") == 2 && !DimensionRipper) || (WoW.PlayerSpellCharges("DimensionalRift") == 1 && DimensionRipper)) &&
+                        WoW.IsSpellInRange("Immolate") && boss)
+                    {
+                        WoW.CastSpell("DimensionalRift");
+                        return;
+                    }
 
                     //Mana Tap
-					if(WoW.CanCast("ManaTap") && ManaTap && (!WoW.PlayerHasBuff("ManaTap") || (WoW.PlayerBuffTimeRemaining("ManaTap") < 6 && 
-					(WoW.Mana < 20 || WoW.PlayerBuffTimeRemaining("ManaTap") < ChaosBoltCast))))
-					{
-						WoW.CastSpell("ManaTap");
-						return;
-					}
+                    if (WoW.CanCast("ManaTap") && ManaTap &&
+                        (!WoW.PlayerHasBuff("ManaTap") || (WoW.PlayerBuffTimeRemaining("ManaTap") < 6 && (WoW.Mana < 20 || WoW.PlayerBuffTimeRemaining("ManaTap") < ChaosBoltCast))))
+                    {
+                        WoW.CastSpell("ManaTap");
+                        return;
+                    }
 
                     //Chaos Bolt
-					if(WoW.CanCast("ChaosBolt") && WoW.CurrentSoulShards >= 2 && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("ChaosBolt");
-						return;
-					}
+                    if (WoW.CanCast("ChaosBolt") && WoW.CurrentSoulShards >= 2 && WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("ChaosBolt");
+                        return;
+                    }
 
                     //Conflagrate
-					if(WoW.CanCast("Conflagrate") && !RoaringBlaze && !WoW.PlayerHasBuff("Backdraft") && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("Conflagrate");
-						return;
-					}
+                    if (WoW.CanCast("Conflagrate") && !RoaringBlaze && !WoW.PlayerHasBuff("Backdraft") && WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("Conflagrate");
+                        return;
+                    }
 
                     //Immolate (maintain)
-					if(WoW.CanCast("Immolate") && !RoaringBlaze && WoW.TargetDebuffTimeRemaining("Immolate") <= 8 && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("Immolate");
-						return;
-					}
+                    if (WoW.CanCast("Immolate") && !RoaringBlaze && WoW.TargetDebuffTimeRemaining("Immolate") <= 8 && WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("Immolate");
+                        return;
+                    }
 
                     //Life Tap
-					if(WoW.CanCast("LifeTap") && ManaTap && WoW.Mana <= 10)
-					{
-						WoW.CastSpell("LifeTap");
-						return;
-					}
+                    if (WoW.CanCast("LifeTap") && ManaTap && WoW.Mana <= 10)
+                    {
+                        WoW.CastSpell("LifeTap");
+                        return;
+                    }
 
                     //Incinerate
-					if(WoW.CanCast("Incinerate") && WoW.IsSpellInRange("Conflagrate"))
-					{
-						WoW.CastSpell("Incinerate");
-						return;
-					}
+                    if (WoW.CanCast("Incinerate") && WoW.IsSpellInRange("Conflagrate"))
+                    {
+                        WoW.CastSpell("Incinerate");
+                        return;
+                    }
 
                     //Life Tap
-					if(WoW.CanCast("LifeTap") && WoW.Mana <= 70)
-					{
-						WoW.CastSpell("LifeTap");
-						return;
-					}
+                    if (WoW.CanCast("LifeTap") && WoW.Mana <= 70)
+                    {
+                        WoW.CastSpell("LifeTap");
+                        return;
+                    }
                 }
             }
 
             // Cleave Rotation
             if (combatRoutine.Type == RotationType.SingleTargetCleave)
             {
+                if (WoW.HasTarget && WoW.TargetIsEnemy && WoW.IsInCombat && !WoW.PlayerIsCasting && !WoW.PlayerIsChanneling && WoW.ItemCount("Healthstone") >= 1 &&
+                    !WoW.ItemOnCooldown("Healthstone") && WoW.HealthPercent < 30)
+                {
+                    WoW.CastSpell("HealthstoneKeybind");
+                    return;
+                }
 
-				if(WoW.HasTarget && WoW.TargetIsEnemy && WoW.IsInCombat && !WoW.PlayerIsCasting && !WoW.PlayerIsChanneling && WoW.ItemCount("Healthstone") >= 1 && !WoW.ItemOnCooldown("Healthstone") && WoW.HealthPercent < 30)
-				{
-					WoW.CastSpell("HealthstoneKeybind");
-					return;
-				}
-
-				if(WoW.HasTarget && WoW.TargetIsEnemy && WoW.IsInCombat && WoW.CanCast("CauterizeMaster") && WoW.HealthPercent < 100 && WoW.HasPet && !GrimoireOfSupremacy && Selfhealing)
-				{
-					WoW.CastSpell("CauterizeMaster");
-					return;
-				}
+                if (WoW.HasTarget && WoW.TargetIsEnemy && WoW.IsInCombat && WoW.CanCast("CauterizeMaster") && WoW.HealthPercent < 100 && WoW.HasPet && !GrimoireOfSupremacy && Selfhealing)
+                {
+                    WoW.CastSpell("CauterizeMaster");
+                    return;
+                }
 
                 // Cleave Rotation (if Moving)
                 if (WoW.HasTarget && WoW.TargetIsEnemy && WoW.IsInCombat && !WoW.PlayerIsCasting && !WoW.PlayerIsChanneling && WoW.IsMoving && !WoW.PlayerHasBuff("Norgannon"))
                 {
-
                     //Dimensional Rift (if 3 charges)
-					if(WoW.CanCast("DimensionalRift") && WoW.IsSpellInRange("Immolate") && WoW.PlayerSpellCharges("DimensionalRift") == 3)
-					{
-						WoW.CastSpell("DimensionalRift");
-						return;
-					}
+                    if (WoW.CanCast("DimensionalRift") && WoW.IsSpellInRange("Immolate") && WoW.PlayerSpellCharges("DimensionalRift") == 3)
+                    {
+                        WoW.CastSpell("DimensionalRift");
+                        return;
+                    }
 
                     //Conflagrate (Roaring Blaze not applied)
-					if(WoW.CanCast("Conflagrate") && RoaringBlaze && WoW.TargetDebuffTimeRemaining("Immolate") > 18 && (WoW.PlayerSpellCharges("Conflagrate") == 2 || 
-					(WoW.PlayerSpellCharges("Conflagrate") == 1 && ConflagTime.ElapsedMilliseconds > ConflagCD-(gcd*1000))) && SecondImmolateCasted && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("Conflagrate");
-						blazed = true;
-						return;
-					}
+                    if (WoW.CanCast("Conflagrate") && RoaringBlaze && WoW.TargetDebuffTimeRemaining("Immolate") > 18 &&
+                        (WoW.PlayerSpellCharges("Conflagrate") == 2 || (WoW.PlayerSpellCharges("Conflagrate") == 1 && ConflagTime.ElapsedMilliseconds > ConflagCD - gcd*1000)) &&
+                        SecondImmolateCasted && WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("Conflagrate");
+                        blazed = true;
+                        return;
+                    }
 
                     //Conflagrate (Roaring Blaze applied)
-					if(WoW.CanCast("Conflagrate") && RoaringBlaze && blazed && SecondImmolateCasted && WoW.TargetDebuffTimeRemaining("Immolate") > 5 && WoW.CurrentSoulShards < 5 && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("Conflagrate");
-						return;
-					}
+                    if (WoW.CanCast("Conflagrate") && RoaringBlaze && blazed && SecondImmolateCasted && WoW.TargetDebuffTimeRemaining("Immolate") > 5 && WoW.CurrentSoulShards < 5 &&
+                        WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("Conflagrate");
+                        return;
+                    }
 
                     //Conflagrate (Conflagration Of Chaos is about to expire)
-					if(WoW.CanCast("Conflagrate") && !RoaringBlaze && !WoW.PlayerHasBuff("Backdraft") && WoW.PlayerBuffTimeRemaining("ConflagrationOfChaos") <= ChaosBoltCast && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("Conflagrate");
-						return;
-					}
+                    if (WoW.CanCast("Conflagrate") && !RoaringBlaze && !WoW.PlayerHasBuff("Backdraft") && WoW.PlayerBuffTimeRemaining("ConflagrationOfChaos") <= ChaosBoltCast &&
+                        WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("Conflagrate");
+                        return;
+                    }
 
                     //Conflagrate (w/ special conditions)
-					if(WoW.CanCast("Conflagrate") && !RoaringBlaze && !WoW.PlayerHasBuff("Backdraft") && 
-					((WoW.PlayerSpellCharges("Conflagrate") == 1 && WoW.SpellCooldownTimeRemaining("Conflagrate") < ChaosBoltCast) || 
-					WoW.PlayerSpellCharges("Conflagrate") == 2) && WoW.CurrentSoulShards < 5 && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("Conflagrate");
-						return;
-					}
+                    if (WoW.CanCast("Conflagrate") && !RoaringBlaze && !WoW.PlayerHasBuff("Backdraft") &&
+                        ((WoW.PlayerSpellCharges("Conflagrate") == 1 && WoW.SpellCooldownTimeRemaining("Conflagrate") < ChaosBoltCast) || WoW.PlayerSpellCharges("Conflagrate") == 2) &&
+                        WoW.CurrentSoulShards < 5 && WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("Conflagrate");
+                        return;
+                    }
 
-					// Service Pet
-					if(WoW.CanCast("ServiceImp") && GrimoireOfService && WoW.CurrentSoulShards >= 1 && boss && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("ServiceImp");
-						return;
-					}
+                    // Service Pet
+                    if (WoW.CanCast("ServiceImp") && GrimoireOfService && WoW.CurrentSoulShards >= 1 && boss && WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("ServiceImp");
+                        return;
+                    }
 
-					// Doomguard
-					if(WoW.CanCast("Doomguard") && WoW.PlayerHasDebuff("LordOfFlames") && WoW.CurrentSoulShards >= 1 && boss && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("Doomguard");
-						return;
-					}
+                    // Doomguard
+                    if (WoW.CanCast("Doomguard") && WoW.PlayerHasDebuff("LordOfFlames") && WoW.CurrentSoulShards >= 1 && boss && WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("Doomguard");
+                        return;
+                    }
 
                     //Dimensional Rift
-					if(WoW.CanCast("DimensionalRift") && WoW.IsSpellInRange("Immolate") && boss)
-					{
-						WoW.CastSpell("DimensionalRift");
-						return;
-					}
+                    if (WoW.CanCast("DimensionalRift") && WoW.IsSpellInRange("Immolate") && boss)
+                    {
+                        WoW.CastSpell("DimensionalRift");
+                        return;
+                    }
 
                     //Mana Tap
-					if(WoW.CanCast("ManaTap") && ManaTap && (!WoW.PlayerHasBuff("ManaTap") || (WoW.PlayerBuffTimeRemaining("ManaTap") < 6 && 
-					(WoW.Mana < 20 || WoW.PlayerBuffTimeRemaining("ManaTap") < ChaosBoltCast))))
-					{
-						WoW.CastSpell("ManaTap");
-						return;
-					}
+                    if (WoW.CanCast("ManaTap") && ManaTap &&
+                        (!WoW.PlayerHasBuff("ManaTap") || (WoW.PlayerBuffTimeRemaining("ManaTap") < 6 && (WoW.Mana < 20 || WoW.PlayerBuffTimeRemaining("ManaTap") < ChaosBoltCast))))
+                    {
+                        WoW.CastSpell("ManaTap");
+                        return;
+                    }
 
                     //Conflagrate
-					if(WoW.CanCast("Conflagrate") && !RoaringBlaze && !WoW.PlayerHasBuff("Backdraft") && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("Conflagrate");
-						return;
-					}
+                    if (WoW.CanCast("Conflagrate") && !RoaringBlaze && !WoW.PlayerHasBuff("Backdraft") && WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("Conflagrate");
+                        return;
+                    }
 
                     //Life Tap
-					if(WoW.CanCast("LifeTap") && ManaTap && WoW.Mana <= 10)
-					{
-						WoW.CastSpell("LifeTap");
-						return;
-					}
+                    if (WoW.CanCast("LifeTap") && ManaTap && WoW.Mana <= 10)
+                    {
+                        WoW.CastSpell("LifeTap");
+                        return;
+                    }
 
                     //Life Tap
-					if(WoW.CanCast("LifeTap") && WoW.Mana <= 70)
-					{
-						WoW.CastSpell("LifeTap");
-						return;
-					}
-
+                    if (WoW.CanCast("LifeTap") && WoW.Mana <= 70)
+                    {
+                        WoW.CastSpell("LifeTap");
+                        return;
+                    }
                 }
 
                 // Cleave Rotation (if NOT Moving [or Norgannon])
                 if (WoW.HasTarget && WoW.TargetIsEnemy && WoW.IsInCombat && !WoW.PlayerIsCasting && !WoW.PlayerIsChanneling && (!WoW.IsMoving || WoW.PlayerHasBuff("Norgannon")))
                 {
-
                     //Dimensional Rift (if 3 charges)
-					if(WoW.CanCast("DimensionalRift") && WoW.IsSpellInRange("Immolate") && WoW.PlayerSpellCharges("DimensionalRift") == 3)
-					{
-						WoW.CastSpell("DimensionalRift");
-						return;
-					}
+                    if (WoW.CanCast("DimensionalRift") && WoW.IsSpellInRange("Immolate") && WoW.PlayerSpellCharges("DimensionalRift") == 3)
+                    {
+                        WoW.CastSpell("DimensionalRift");
+                        return;
+                    }
 
                     //Immolate
-					if(WoW.CanCast("Immolate") && (!WoW.TargetHasDebuff("Immolate") || WoW.TargetDebuffTimeRemaining("Immolate") <= 3) && WoW.LastSpell != ("Immolate") && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("Immolate");
-						blazed = false;
-						SecondImmolateCasted = false;
-						return;
-					}
+                    if (WoW.CanCast("Immolate") && (!WoW.TargetHasDebuff("Immolate") || WoW.TargetDebuffTimeRemaining("Immolate") <= 3) && WoW.LastSpell != "Immolate" &&
+                        WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("Immolate");
+                        blazed = false;
+                        SecondImmolateCasted = false;
+                        return;
+                    }
 
                     //Immolate (Duration maxed with Roaring Blaze)
-					if(WoW.CanCast("Immolate") && RoaringBlaze && !blazed && WoW.TargetDebuffTimeRemaining("Immolate") <= 18 && (WoW.PlayerSpellCharges("Conflagrate") == 2 || 
-					(WoW.PlayerSpellCharges("Conflagrate") >= 1 && ConflagTime.ElapsedMilliseconds > ConflagCD-(ImmolateCastMS+(gcd*1000)))) && !SecondImmolateCasted && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("Immolate");
-						SecondImmolateCasted = true;
-						return;
-					}
+                    if (WoW.CanCast("Immolate") && RoaringBlaze && !blazed && WoW.TargetDebuffTimeRemaining("Immolate") <= 18 &&
+                        (WoW.PlayerSpellCharges("Conflagrate") == 2 || (WoW.PlayerSpellCharges("Conflagrate") >= 1 && ConflagTime.ElapsedMilliseconds > ConflagCD - (ImmolateCastMS + gcd*1000))) &&
+                        !SecondImmolateCasted && WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("Immolate");
+                        SecondImmolateCasted = true;
+                        return;
+                    }
 
                     //Conflagrate (Roaring Blaze not applied)
-					if(WoW.CanCast("Conflagrate") && RoaringBlaze && WoW.TargetDebuffTimeRemaining("Immolate") > 18 && (WoW.PlayerSpellCharges("Conflagrate") == 2 || 
-					(WoW.PlayerSpellCharges("Conflagrate") == 1 && ConflagTime.ElapsedMilliseconds > ConflagCD-(gcd*1000))) && SecondImmolateCasted && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("Conflagrate");
-						blazed = true;
-						return;
-					}
+                    if (WoW.CanCast("Conflagrate") && RoaringBlaze && WoW.TargetDebuffTimeRemaining("Immolate") > 18 &&
+                        (WoW.PlayerSpellCharges("Conflagrate") == 2 || (WoW.PlayerSpellCharges("Conflagrate") == 1 && ConflagTime.ElapsedMilliseconds > ConflagCD - gcd*1000)) &&
+                        SecondImmolateCasted && WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("Conflagrate");
+                        blazed = true;
+                        return;
+                    }
 
                     //Conflagrate (Roaring Blaze applied)
-					if(WoW.CanCast("Conflagrate") && RoaringBlaze && blazed && SecondImmolateCasted && WoW.TargetDebuffTimeRemaining("Immolate") > 5 && WoW.CurrentSoulShards < 5 && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("Conflagrate");
-						return;
-					}
+                    if (WoW.CanCast("Conflagrate") && RoaringBlaze && blazed && SecondImmolateCasted && WoW.TargetDebuffTimeRemaining("Immolate") > 5 && WoW.CurrentSoulShards < 5 &&
+                        WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("Conflagrate");
+                        return;
+                    }
 
                     //Conflagrate (Conflagration Of Chaos is about to expire)
-					if(WoW.CanCast("Conflagrate") && !RoaringBlaze && !WoW.PlayerHasBuff("Backdraft") && WoW.PlayerBuffTimeRemaining("ConflagrationOfChaos") <= ChaosBoltCast && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("Conflagrate");
-						return;
-					}
+                    if (WoW.CanCast("Conflagrate") && !RoaringBlaze && !WoW.PlayerHasBuff("Backdraft") && WoW.PlayerBuffTimeRemaining("ConflagrationOfChaos") <= ChaosBoltCast &&
+                        WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("Conflagrate");
+                        return;
+                    }
 
                     //Conflagrate (w/ special conditions)
-					if(WoW.CanCast("Conflagrate") && !RoaringBlaze && !WoW.PlayerHasBuff("Backdraft") && 
-					((WoW.PlayerSpellCharges("Conflagrate") == 1 && WoW.SpellCooldownTimeRemaining("Conflagrate") < ChaosBoltCast) || 
-					WoW.PlayerSpellCharges("Conflagrate") == 2) && WoW.CurrentSoulShards < 5 && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("Conflagrate");
-						return;
-					}
+                    if (WoW.CanCast("Conflagrate") && !RoaringBlaze && !WoW.PlayerHasBuff("Backdraft") &&
+                        ((WoW.PlayerSpellCharges("Conflagrate") == 1 && WoW.SpellCooldownTimeRemaining("Conflagrate") < ChaosBoltCast) || WoW.PlayerSpellCharges("Conflagrate") == 2) &&
+                        WoW.CurrentSoulShards < 5 && WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("Conflagrate");
+                        return;
+                    }
 
-					// Service Pet
-					if(WoW.CanCast("ServiceImp") && GrimoireOfService && WoW.CurrentSoulShards >= 1 && boss && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("ServiceImp");
-						return;
-					}
+                    // Service Pet
+                    if (WoW.CanCast("ServiceImp") && GrimoireOfService && WoW.CurrentSoulShards >= 1 && boss && WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("ServiceImp");
+                        return;
+                    }
 
-					// Infernal (make a @cursor macro)
-					if(WoW.CanCast("Infernal") && LordOfFlames && !WoW.PlayerHasDebuff("LordOfFlames") && WoW.CurrentSoulShards >= 1 && boss && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("Infernal");
-						return;
-					}
+                    // Infernal (make a @cursor macro)
+                    if (WoW.CanCast("Infernal") && LordOfFlames && !WoW.PlayerHasDebuff("LordOfFlames") && WoW.CurrentSoulShards >= 1 && boss && WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("Infernal");
+                        return;
+                    }
 
-					// Doomguard
-					if(WoW.CanCast("Doomguard") && (WoW.PlayerHasDebuff("LordOfFlames") || !LordOfFlames) && WoW.CurrentSoulShards >= 1 && boss && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("Doomguard");
-						return;
-					}
+                    // Doomguard
+                    if (WoW.CanCast("Doomguard") && (WoW.PlayerHasDebuff("LordOfFlames") || !LordOfFlames) && WoW.CurrentSoulShards >= 1 && boss && WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("Doomguard");
+                        return;
+                    }
 
                     //Chaos Bolt (if about to cap Soul Shards or has Backdraft)
-					if(WoW.CanCast("ChaosBolt") && WoW.CurrentSoulShards >= 2 && (WoW.CurrentSoulShards > 3 || WoW.PlayerHasBuff("Backdraft")) && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("ChaosBolt");
-						return;
-					}
+                    if (WoW.CanCast("ChaosBolt") && WoW.CurrentSoulShards >= 2 && (WoW.CurrentSoulShards > 3 || WoW.PlayerHasBuff("Backdraft")) && WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("ChaosBolt");
+                        return;
+                    }
 
                     //Incinerate (if Backdraft)
-					if(WoW.CanCast("Incinerate") && WoW.PlayerHasBuff("Backdraft") && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("Incinerate");
-						return;
-					}
+                    if (WoW.CanCast("Incinerate") && WoW.PlayerHasBuff("Backdraft") && WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("Incinerate");
+                        return;
+                    }
 
                     //Dimensional Rift (if no shards and Conflagrate is on cd)
-					if(WoW.CanCast("DimensionalRift") && WoW.CurrentSoulShards == 0 && !WoW.CanCast("Conflagrate") && WoW.SpellCooldownTimeRemaining("Conflagrate") > gcd && boss && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("DimensionalRift");
-						return;
-					}
+                    if (WoW.CanCast("DimensionalRift") && WoW.CurrentSoulShards == 0 && !WoW.CanCast("Conflagrate") && WoW.SpellCooldownTimeRemaining("Conflagrate") > gcd && boss &&
+                        WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("DimensionalRift");
+                        return;
+                    }
 
                     //Mana Tap
-					if(WoW.CanCast("ManaTap") && ManaTap && (!WoW.PlayerHasBuff("ManaTap") || (WoW.PlayerBuffTimeRemaining("ManaTap") < 6 && 
-					(WoW.Mana < 20 || WoW.PlayerBuffTimeRemaining("ManaTap") < ChaosBoltCast))))
-					{
-						WoW.CastSpell("ManaTap");
-						return;
-					}
+                    if (WoW.CanCast("ManaTap") && ManaTap &&
+                        (!WoW.PlayerHasBuff("ManaTap") || (WoW.PlayerBuffTimeRemaining("ManaTap") < 6 && (WoW.Mana < 20 || WoW.PlayerBuffTimeRemaining("ManaTap") < ChaosBoltCast))))
+                    {
+                        WoW.CastSpell("ManaTap");
+                        return;
+                    }
 
                     //Chaos Bolt
-					if(WoW.CanCast("ChaosBolt") && WoW.CurrentSoulShards >= 2 && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("ChaosBolt");
-						return;
-					}
+                    if (WoW.CanCast("ChaosBolt") && WoW.CurrentSoulShards >= 2 && WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("ChaosBolt");
+                        return;
+                    }
 
                     //Conflagrate
-					if(WoW.CanCast("Conflagrate") && !RoaringBlaze && !WoW.PlayerHasBuff("Backdraft") && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("Conflagrate");
-						return;
-					}
+                    if (WoW.CanCast("Conflagrate") && !RoaringBlaze && !WoW.PlayerHasBuff("Backdraft") && WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("Conflagrate");
+                        return;
+                    }
 
                     //Immolate (maintain)
-					if(WoW.CanCast("Immolate") && !RoaringBlaze && WoW.TargetDebuffTimeRemaining("Immolate") <= 8 && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("Immolate");
-						return;
-					}
+                    if (WoW.CanCast("Immolate") && !RoaringBlaze && WoW.TargetDebuffTimeRemaining("Immolate") <= 8 && WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("Immolate");
+                        return;
+                    }
 
                     //Life Tap
-					if(WoW.CanCast("LifeTap") && ManaTap && WoW.Mana <= 10)
-					{
-						WoW.CastSpell("LifeTap");
-						return;
-					}
+                    if (WoW.CanCast("LifeTap") && ManaTap && WoW.Mana <= 10)
+                    {
+                        WoW.CastSpell("LifeTap");
+                        return;
+                    }
 
                     //Incinerate
-					if(WoW.CanCast("Incinerate") && WoW.IsSpellInRange("Conflagrate"))
-					{
-						WoW.CastSpell("Incinerate");
-						return;
-					}
+                    if (WoW.CanCast("Incinerate") && WoW.IsSpellInRange("Conflagrate"))
+                    {
+                        WoW.CastSpell("Incinerate");
+                        return;
+                    }
 
                     //Life Tap
-					if(WoW.CanCast("LifeTap") && WoW.Mana <= 70)
-					{
-						WoW.CastSpell("LifeTap");
-						return;
-					}
+                    if (WoW.CanCast("LifeTap") && WoW.Mana <= 70)
+                    {
+                        WoW.CastSpell("LifeTap");
+                        return;
+                    }
                 }
             }
 
             // AoE Rotation
             if (combatRoutine.Type == RotationType.AOE)
             {
+                if (WoW.HasTarget && WoW.TargetIsEnemy && WoW.IsInCombat && !WoW.PlayerIsCasting && !WoW.PlayerIsChanneling && WoW.ItemCount("Healthstone") >= 1 &&
+                    !WoW.ItemOnCooldown("Healthstone") && WoW.HealthPercent < 30)
+                {
+                    WoW.CastSpell("HealthstoneKeybind");
+                    return;
+                }
 
-				if(WoW.HasTarget && WoW.TargetIsEnemy && WoW.IsInCombat && !WoW.PlayerIsCasting && !WoW.PlayerIsChanneling && WoW.ItemCount("Healthstone") >= 1 && !WoW.ItemOnCooldown("Healthstone") && WoW.HealthPercent < 30)
-				{
-					WoW.CastSpell("HealthstoneKeybind");
-					return;
-				}
+                if (WoW.HasTarget && WoW.TargetIsEnemy && WoW.IsInCombat && WoW.CanCast("CauterizeMaster") && WoW.HealthPercent < 100 && WoW.HasPet && !GrimoireOfSupremacy && Selfhealing)
+                {
+                    WoW.CastSpell("CauterizeMaster");
+                    return;
+                }
 
-				if(WoW.HasTarget && WoW.TargetIsEnemy && WoW.IsInCombat && WoW.CanCast("CauterizeMaster") && WoW.HealthPercent < 100 && WoW.HasPet && !GrimoireOfSupremacy && Selfhealing)
-				{
-					WoW.CastSpell("CauterizeMaster");
-					return;
-				}
-
-				//AoE Rotation (if Moving)
+                //AoE Rotation (if Moving)
                 if (WoW.HasTarget && WoW.TargetIsEnemy && WoW.IsInCombat && !WoW.PlayerIsCasting && !WoW.PlayerIsChanneling && WoW.IsMoving && !WoW.PlayerHasBuff("Norgannon"))
                 {
-
-					//Rain Of Fire
-					if(WoW.CanCast("RainOfFire") && WoW.CurrentSoulShards > 4)
-					{
-						WoW.CastSpell("RainOfFire");
-						return;
-					}
+                    //Rain Of Fire
+                    if (WoW.CanCast("RainOfFire") && WoW.CurrentSoulShards > 4)
+                    {
+                        WoW.CastSpell("RainOfFire");
+                        return;
+                    }
 
                     //Conflagrate (Conflagration Of Chaos is about to expire)
-					if(WoW.CanCast("Conflagrate") && !WoW.PlayerHasBuff("Backdraft") && WoW.PlayerBuffTimeRemaining("ConflagrationOfChaos") <= ChaosBoltCast && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("Conflagrate");
-						return;
-					}
+                    if (WoW.CanCast("Conflagrate") && !WoW.PlayerHasBuff("Backdraft") && WoW.PlayerBuffTimeRemaining("ConflagrationOfChaos") <= ChaosBoltCast && WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("Conflagrate");
+                        return;
+                    }
 
                     //Conflagrate (w/ special conditions)
-					if(WoW.CanCast("Conflagrate") && !WoW.PlayerHasBuff("Backdraft") && 
-					((WoW.PlayerSpellCharges("Conflagrate") == 1 && WoW.SpellCooldownTimeRemaining("Conflagrate") < ChaosBoltCast) || 
-					WoW.PlayerSpellCharges("Conflagrate") == 2) && WoW.CurrentSoulShards < 5 && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("Conflagrate");
-						return;
-					}
+                    if (WoW.CanCast("Conflagrate") && !WoW.PlayerHasBuff("Backdraft") &&
+                        ((WoW.PlayerSpellCharges("Conflagrate") == 1 && WoW.SpellCooldownTimeRemaining("Conflagrate") < ChaosBoltCast) || WoW.PlayerSpellCharges("Conflagrate") == 2) &&
+                        WoW.CurrentSoulShards < 5 && WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("Conflagrate");
+                        return;
+                    }
 
-					//Rain Of Fire
-					if(WoW.CanCast("RainOfFire") && WoW.CurrentSoulShards >= 3)
-					{
-						WoW.CastSpell("RainOfFire");
-						return;
-					}
+                    //Rain Of Fire
+                    if (WoW.CanCast("RainOfFire") && WoW.CurrentSoulShards >= 3)
+                    {
+                        WoW.CastSpell("RainOfFire");
+                        return;
+                    }
 
                     //Dimensional Rift
-					if(WoW.CanCast("DimensionalRift") && boss && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("DimensionalRift");
-						return;
-					}
+                    if (WoW.CanCast("DimensionalRift") && boss && WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("DimensionalRift");
+                        return;
+                    }
 
                     //Conflagrate
-					if(WoW.CanCast("Conflagrate") && !WoW.PlayerHasBuff("Backdraft") && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("Conflagrate");
-						return;
-					}
+                    if (WoW.CanCast("Conflagrate") && !WoW.PlayerHasBuff("Backdraft") && WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("Conflagrate");
+                        return;
+                    }
 
                     //Mana Tap
-					if(WoW.CanCast("ManaTap") && ManaTap && (!WoW.PlayerHasBuff("ManaTap") || (WoW.PlayerBuffTimeRemaining("ManaTap") < 6 && 
-					(WoW.Mana < 20 || WoW.PlayerBuffTimeRemaining("ManaTap") < ChaosBoltCast))))
-					{
-						WoW.CastSpell("ManaTap");
-						return;
-					}
+                    if (WoW.CanCast("ManaTap") && ManaTap &&
+                        (!WoW.PlayerHasBuff("ManaTap") || (WoW.PlayerBuffTimeRemaining("ManaTap") < 6 && (WoW.Mana < 20 || WoW.PlayerBuffTimeRemaining("ManaTap") < ChaosBoltCast))))
+                    {
+                        WoW.CastSpell("ManaTap");
+                        return;
+                    }
 
                     //Conflagrate
-					if(WoW.CanCast("Conflagrate") && !WoW.PlayerHasBuff("Backdraft") && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("Conflagrate");
-						return;
-					}
+                    if (WoW.CanCast("Conflagrate") && !WoW.PlayerHasBuff("Backdraft") && WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("Conflagrate");
+                        return;
+                    }
 
                     //Life Tap
-					if(WoW.CanCast("LifeTap") && ManaTap && WoW.Mana <= 10)
-					{
-						WoW.CastSpell("LifeTap");
-						return;
-					}
+                    if (WoW.CanCast("LifeTap") && ManaTap && WoW.Mana <= 10)
+                    {
+                        WoW.CastSpell("LifeTap");
+                        return;
+                    }
 
 
                     //Life Tap
-					if(WoW.CanCast("LifeTap") && WoW.Mana <= 70)
-					{
-						WoW.CastSpell("LifeTap");
-						return;
-					}
-
+                    if (WoW.CanCast("LifeTap") && WoW.Mana <= 70)
+                    {
+                        WoW.CastSpell("LifeTap");
+                        return;
+                    }
                 }
 
                 // Normal Rotation (if NOT Moving [or Norgannon])
                 if (WoW.HasTarget && WoW.TargetIsEnemy && WoW.IsInCombat && !WoW.PlayerIsCasting && !WoW.PlayerIsChanneling && (!WoW.IsMoving || WoW.PlayerHasBuff("Norgannon")))
                 {
-
-					//Rain Of Fire
-					if(WoW.CanCast("RainOfFire") && WoW.CurrentSoulShards > 4)
-					{
-						WoW.CastSpell("RainOfFire");
-						return;
-					}
+                    //Rain Of Fire
+                    if (WoW.CanCast("RainOfFire") && WoW.CurrentSoulShards > 4)
+                    {
+                        WoW.CastSpell("RainOfFire");
+                        return;
+                    }
 
                     //Immolate
-					if(WoW.CanCast("Immolate") && (!WoW.TargetHasDebuff("Immolate") || WoW.TargetDebuffTimeRemaining("Immolate") <= 3) && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("Immolate");
-						blazed = false;
-						return;
-					}
+                    if (WoW.CanCast("Immolate") && (!WoW.TargetHasDebuff("Immolate") || WoW.TargetDebuffTimeRemaining("Immolate") <= 3) && WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("Immolate");
+                        blazed = false;
+                        return;
+                    }
 
                     //Conflagrate (Conflagration Of Chaos is about to expire)
-					if(WoW.CanCast("Conflagrate") && !WoW.PlayerHasBuff("Backdraft") && WoW.PlayerBuffTimeRemaining("ConflagrationOfChaos") <= ChaosBoltCast && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("Conflagrate");
-						return;
-					}
+                    if (WoW.CanCast("Conflagrate") && !WoW.PlayerHasBuff("Backdraft") && WoW.PlayerBuffTimeRemaining("ConflagrationOfChaos") <= ChaosBoltCast && WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("Conflagrate");
+                        return;
+                    }
 
                     //Conflagrate (w/ special conditions)
-					if(WoW.CanCast("Conflagrate") && !WoW.PlayerHasBuff("Backdraft") && 
-					((WoW.PlayerSpellCharges("Conflagrate") == 1 && WoW.SpellCooldownTimeRemaining("Conflagrate") < ChaosBoltCast) || 
-					WoW.PlayerSpellCharges("Conflagrate") == 2) && WoW.CurrentSoulShards < 5 && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("Conflagrate");
-						return;
-					}
+                    if (WoW.CanCast("Conflagrate") && !WoW.PlayerHasBuff("Backdraft") &&
+                        ((WoW.PlayerSpellCharges("Conflagrate") == 1 && WoW.SpellCooldownTimeRemaining("Conflagrate") < ChaosBoltCast) || WoW.PlayerSpellCharges("Conflagrate") == 2) &&
+                        WoW.CurrentSoulShards < 5 && WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("Conflagrate");
+                        return;
+                    }
 
-					//Rain Of Fire
-					if(WoW.CanCast("RainOfFire") && WoW.CurrentSoulShards >= 3)
-					{
-						WoW.CastSpell("RainOfFire");
-						return;
-					}
+                    //Rain Of Fire
+                    if (WoW.CanCast("RainOfFire") && WoW.CurrentSoulShards >= 3)
+                    {
+                        WoW.CastSpell("RainOfFire");
+                        return;
+                    }
 
                     //Dimensional Rift (if no shards and Conflagrate is on cd)
-					if(WoW.CanCast("DimensionalRift") && WoW.CurrentSoulShards == 0 && !WoW.CanCast("Conflagrate") && WoW.SpellCooldownTimeRemaining("Conflagrate") > gcd && boss && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("DimensionalRift");
-						return;
-					}
+                    if (WoW.CanCast("DimensionalRift") && WoW.CurrentSoulShards == 0 && !WoW.CanCast("Conflagrate") && WoW.SpellCooldownTimeRemaining("Conflagrate") > gcd && boss &&
+                        WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("DimensionalRift");
+                        return;
+                    }
 
                     //Conflagrate
-					if(WoW.CanCast("Conflagrate") && !WoW.PlayerHasBuff("Backdraft") && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("Conflagrate");
-						return;
-					}
+                    if (WoW.CanCast("Conflagrate") && !WoW.PlayerHasBuff("Backdraft") && WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("Conflagrate");
+                        return;
+                    }
 
                     //Mana Tap
-					if(WoW.CanCast("ManaTap") && ManaTap && (!WoW.PlayerHasBuff("ManaTap") || (WoW.PlayerBuffTimeRemaining("ManaTap") < 6 && 
-					(WoW.Mana < 20 || WoW.PlayerBuffTimeRemaining("ManaTap") < ChaosBoltCast))))
-					{
-						WoW.CastSpell("ManaTap");
-						return;
-					}
+                    if (WoW.CanCast("ManaTap") && ManaTap &&
+                        (!WoW.PlayerHasBuff("ManaTap") || (WoW.PlayerBuffTimeRemaining("ManaTap") < 6 && (WoW.Mana < 20 || WoW.PlayerBuffTimeRemaining("ManaTap") < ChaosBoltCast))))
+                    {
+                        WoW.CastSpell("ManaTap");
+                        return;
+                    }
 
                     //Conflagrate
-					if(WoW.CanCast("Conflagrate") && !WoW.PlayerHasBuff("Backdraft") && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("Conflagrate");
-						return;
-					}
+                    if (WoW.CanCast("Conflagrate") && !WoW.PlayerHasBuff("Backdraft") && WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("Conflagrate");
+                        return;
+                    }
 
                     //Immolate (maintain)
-					if(WoW.CanCast("Immolate") && WoW.TargetDebuffTimeRemaining("Immolate") <= 8 && WoW.IsSpellInRange("Immolate"))
-					{
-						WoW.CastSpell("Immolate");
-						return;
-					}
+                    if (WoW.CanCast("Immolate") && WoW.TargetDebuffTimeRemaining("Immolate") <= 8 && WoW.IsSpellInRange("Immolate"))
+                    {
+                        WoW.CastSpell("Immolate");
+                        return;
+                    }
 
                     //Life Tap
-					if(WoW.CanCast("LifeTap") && ManaTap && WoW.Mana <= 10)
-					{
-						WoW.CastSpell("LifeTap");
-						return;
-					}
+                    if (WoW.CanCast("LifeTap") && ManaTap && WoW.Mana <= 10)
+                    {
+                        WoW.CastSpell("LifeTap");
+                        return;
+                    }
 
                     //Incinerate
-					if(WoW.CanCast("Incinerate") && WoW.IsSpellInRange("Conflagrate"))
-					{
-						WoW.CastSpell("Incinerate");
-						return;
-					}
+                    if (WoW.CanCast("Incinerate") && WoW.IsSpellInRange("Conflagrate"))
+                    {
+                        WoW.CastSpell("Incinerate");
+                        return;
+                    }
 
                     //Life Tap
-					if(WoW.CanCast("LifeTap") && WoW.Mana <= 70)
-					{
-						WoW.CastSpell("LifeTap");
-						return;
-					}
+                    if (WoW.CanCast("LifeTap") && WoW.Mana <= 70)
+                    {
+                        WoW.CastSpell("LifeTap");
+                    }
                 }
             }
         }

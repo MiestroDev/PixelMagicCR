@@ -54,7 +54,7 @@ namespace PixelMagic.Rotation
                 return;
             }
 
-            if (DetectKeyPress.GetKeyState(DetectKeyPress.Ctrl) < 0)
+            if (DetectKeyPress.GetKeyState(DetectKeyPress.VK_LCONTROL) < 0)
             {
                 if (WoW.IsInCombat && !WoW.IsSpellOnCooldown("HeroicLeap"))
                 {
@@ -72,7 +72,7 @@ namespace PixelMagic.Rotation
                 }
                 return;
             }
-            if (DetectKeyPress.GetKeyState(DetectKeyPress.Alt) < 0)
+            if (DetectKeyPress.GetKeyState(DetectKeyPress.VK_LMENU) < 0)
             {
                 if (WoW.IsInCombat && !WoW.IsSpellOnCooldown("Shockwave"))
                 {

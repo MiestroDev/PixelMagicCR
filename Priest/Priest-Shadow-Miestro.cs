@@ -17,7 +17,6 @@ using System.Threading;
 using System.Windows.Forms;
 using PixelMagic.Helpers;
 
-
 /**
  * Shadow priest rotation.
 */
@@ -119,8 +118,8 @@ namespace PixelMagic.Rotation
                     //Just so happens that the spell and debuff name are the same, this is not ALWAYS the case.
                     maintainDebuff(VAMPIRIC_TOUCH, VAMPIRIC_TOUCH, 5);
                     maintainDebuff(SHADOW_PAIN, SHADOW_PAIN, 2);
-                } 
-                else 
+                }
+                else
                 {
                     maintainDebuff(VAMPIRIC_TOUCH, VAMPIRIC_TOUCH, WoW.SpellCooldownTimeRemaining(VOID_BOLT));
                     maintainDebuff(SHADOW_PAIN, SHADOW_PAIN, WoW.SpellCooldownTimeRemaining(VOID_BOLT));
@@ -161,7 +160,7 @@ namespace PixelMagic.Rotation
         /// </summary>
         private void doRotation(bool isSingleTarget = true)
         {
-            bool ignoreMovement = WoW.PlayerHasBuff(SURRENDER_MADNESS);
+            var ignoreMovement = WoW.PlayerHasBuff(SURRENDER_MADNESS);
 
             if (WoW.Insanity >= 70 || WoW.PlayerHasBuff(VOIDFORM_AURA))
             {
@@ -177,10 +176,6 @@ namespace PixelMagic.Rotation
 
                     //Cast it.
                     castWithRangeCheck(VOID_TORRENT, ignoreMovement);
-                    if (WoW.LastSpell.Equals(VOID_TORRENT))
-                    {
-                        Thread.Sleep(4000); //Sleep while void torrent is casting.
-                    }
 
                     //If the boss health is at or below our set threshold SW:D
                     if (WoW.TargetHealthPercent <= HEALTH_PERCENT_FOR_SWD)
@@ -201,7 +196,8 @@ namespace PixelMagic.Rotation
                     }
 
                     //Cast shadowfiend if we have more than 15 stacks of voidform aura.
-                    if(WoW.PlayerBuffStacks(VOIDFORM_AURA) >= 15) {
+                    if (WoW.PlayerBuffStacks(VOIDFORM_AURA) >= 15)
+                    {
                         castWithRangeCheck(SHADOW_FIEND);
                     }
 
@@ -259,7 +255,7 @@ namespace PixelMagic.Rotation
         /// <returns>True if we can not currently cast another spell.</returns>
         private bool isPlayerBusy(bool ignoreMovement = false, bool ignoreChanneling = true)
         {
-            var canCast = WoW.PlayerIsCasting || (WoW.PlayerIsChanneling && !ignoreChanneling) || (WoW.IsMoving && ignoreMovement);
+            var canCast = WoW.PlayerIsCasting || (WoW.PlayerIsChanneling && !(ignoreChanneling && !WoW.WasLastCasted(VOID_TORRENT))) || (WoW.IsMoving && ignoreMovement);
             return canCast;
         }
 

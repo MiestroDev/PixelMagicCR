@@ -87,13 +87,15 @@ namespace PixelMagic.Rotation
                         return;
                     }
 
-                    if (WoW.CanCast("Hailstorm") && (WoW.PlayerBuffTimeRemaining("Frostbrand") <= 4.2) && WoW.IsSpellInRange("Flametongue") && WoW.Maelstrom >= 20) //REFRESH FROSTBRAND PANCEMIC
+                    if (WoW.CanCast("Hailstorm") && (WoW.PlayerBuffTimeRemaining("Frostbrand") <= 4.2) && WoW.IsSpellInRange("Flametongue") && WoW.Maelstrom >= 20)
+                        //REFRESH FROSTBRAND PANCEMIC
                     {
                         WoW.CastSpell("Hailstorm");
                         return;
                     }
 
-                    if (WoW.CanCast("Flametongue") && (WoW.PlayerBuffTimeRemaining("Flametongue") <= 4.2) && WoW.IsSpellInRange("Flametongue") && !WoW.IsSpellOnCooldown("Flametongue")) //REFRESH FLAMETONGUE PANDEMIC
+                    if (WoW.CanCast("Flametongue") && (WoW.PlayerBuffTimeRemaining("Flametongue") <= 4.2) && WoW.IsSpellInRange("Flametongue") && !WoW.IsSpellOnCooldown("Flametongue"))
+                        //REFRESH FLAMETONGUE PANDEMIC
                     {
                         WoW.CastSpell("Flametongue");
                         return;
@@ -126,7 +128,8 @@ namespace PixelMagic.Rotation
                         return;
                     }
 
-                    if (WoW.CanCast("Feral Lunge") && !WoW.IsSpellInRange("Flametongue") && WoW.IsSpellInRange("Feral Lunge")) //out of range of flametongue 10y and in range of feral lunge 8-25y 
+                    if (WoW.CanCast("Feral Lunge") && !WoW.IsSpellInRange("Flametongue") && WoW.IsSpellInRange("Feral Lunge"))
+                        //out of range of flametongue 10y and in range of feral lunge 8-25y 
                     {
                         WoW.CastSpell("Feral Lunge");
                         return;
@@ -209,7 +212,8 @@ namespace PixelMagic.Rotation
                         return;
                     }
 
-                    if (WoW.CanCast("Hailstorm") && (WoW.PlayerBuffTimeRemaining("Frostbrand") <= 4.2) && WoW.IsSpellInRange("Flametongue") && WoW.Maelstrom >= 20) //REFRESH FROSTBRAND PANCEMIC
+                    if (WoW.CanCast("Hailstorm") && (WoW.PlayerBuffTimeRemaining("Frostbrand") <= 4.2) && WoW.IsSpellInRange("Flametongue") && WoW.Maelstrom >= 20)
+                        //REFRESH FROSTBRAND PANCEMIC
                     {
                         WoW.CastSpell("Hailstorm");
                         return;
@@ -248,7 +252,8 @@ namespace PixelMagic.Rotation
                         return;
                     }
 
-                    if (WoW.CanCast("Feral Lunge") && !WoW.IsSpellInRange("Flametongue") && WoW.IsSpellInRange("Feral Lunge")) //out of range of flametongue 10y and in range of feral lunge 8-25y 
+                    if (WoW.CanCast("Feral Lunge") && !WoW.IsSpellInRange("Flametongue") && WoW.IsSpellInRange("Feral Lunge"))
+                        //out of range of flametongue 10y and in range of feral lunge 8-25y 
                     {
                         WoW.CastSpell("Feral Lunge");
                         return;
@@ -331,7 +336,8 @@ namespace PixelMagic.Rotation
                         return;
                     }
 
-                    if (WoW.CanCast("Hailstorm") && (WoW.PlayerBuffTimeRemaining("Frostbrand") <= 4.2) && WoW.IsSpellInRange("Flametongue") && WoW.Maelstrom >= 20) //REFRESH FROSTBRAND PANCEMIC
+                    if (WoW.CanCast("Hailstorm") && (WoW.PlayerBuffTimeRemaining("Frostbrand") <= 4.2) && WoW.IsSpellInRange("Flametongue") && WoW.Maelstrom >= 20)
+                        //REFRESH FROSTBRAND PANCEMIC
                     {
                         WoW.CastSpell("Hailstorm");
                         return;
